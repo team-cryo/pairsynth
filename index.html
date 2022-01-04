@@ -1,0 +1,175 @@
+<!doctype html>
+<html>
+    <head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <link rel="stylesheet" href="assets/css/style.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Pairsynth</title>
+    </head>
+    <body>
+        <div class="toolbar">
+            <ul>
+                <li class="toolbar-item toolbar-file" data-type="file">File</li>
+                <li class="toolbar-item toolbar-edit" data-type="edit">Edit</li>
+            </ul>
+
+            <div class="toolbar-menu menu-file" style="display: none;">
+                <ul>
+                    <li class="item-save">Save</li>
+                    <li class="item-export">Export</li>
+                </ul>
+            </div>
+
+            <div class="toolbar-menu menu-edit" style="display: none;">
+                
+            </div>
+        </div>
+
+        <div class="content">
+            <h1>Pairsynth</h1>
+
+            <div class="controls">
+                <button class="btnPlay">Play</button>
+                <button class="btnStop">Stop</button>
+    
+                <p style="color: #fff;">Add module</p>
+                <select class="modules-list">
+                    
+                </select>
+                <button class="btnAddModule">Add</button>
+            </div>
+    
+            <div class="modules"></div>
+
+            <svg id="lines"></svg>
+        </div>
+
+        <template id="template-module">
+            <div class="module draggable" data-id="{{ index }}">
+                <div class="index header">
+                    <p>{{ name }} #{{ index }}</p>
+                </div>
+                <ul class="controls">
+                    {{{controls}}}
+                </ul>
+                <div class="inputs"></div>
+                <div class="outputs"></div>
+            </div>
+        </template>
+
+        <template id="template-module-osc">
+            <label for="">Freq</label><br>
+            <input type="number" class="inputFreq" placeholder="Frequency">
+        </template>
+
+        <template>
+            <label for=""></label>
+        </template>
+
+        <template id="template-listelement-controls">
+            <li class="controlListElement {{ classes }}">
+                <label class="controlLabel" for="">{{ label }}</label><br>
+                {{{content}}}
+            </li>
+        </template>
+        
+        <template id="template-control-numeric">
+            <input type="number" class="controlInput" placeholder="{{ placeholder }}">
+        </template>
+
+        <template id="template-control-range">
+            <input type="range" class="controlInput" min="{{ min }}" max="{{ max }}" step="{{ step }}">
+        </template>
+        
+        <template id="template-control-textbox">
+            <input type="text" class="controlInput" placeholder="{{ placeholder }}">
+        </template>
+        
+        <template id="template-control-dropdown">
+            <select class="controlInput dropdown" placeholder="{{ placeholder }}">{{{options}}}</select>
+        </template>
+        
+        <template id="template-control-dropdown-selectvalue">
+            <option value="{{ value }}">{{ label }}</option>
+        </template>
+
+        <template id="template-toolbar-menu">
+            <div class="toolbar-menu">
+                <ul>
+
+                </ul>
+            </div>
+        </template>
+
+        <template id="template-context-menu">
+            <div class="contextMenu">
+                <ul>
+                    <li class="contextMenuPlay" data-name="play">Play</li>
+                    <li class="contextMenuStop" data-name="stop">Stop</li>
+                    <li class="contextMenuAddModule" data-name="addmodule">Add Module</li>
+                </ul>
+            </div>
+        </template>
+
+        <template id="template-add-module">
+            <div class="addModule">
+                <h2 style="color: #fff;">Add module</h2>
+                <select class="modules-list">
+                    
+                </select>
+                <button class="btnAddModule">Add</button>
+            </div>
+        </template>
+
+        <script src="assets/js/libraries/jquery.min.js"></script>
+        <script src="assets/js/libraries/lodash.js"></script>
+        <script src="assets/js/libraries/mustache.min.js"></script>
+
+        <script src="assets/js/draggable_element.js"></script>
+        <script src="assets/js/custom_buffer.js"></script>
+        <script src="assets/js/util.js"></script>
+
+        <script src="assets/js/math_utils/geometry.js"></script>
+        <script src="assets/js/math_utils/waveform.js"></script>
+        <script src="assets/js/math_utils/distribution.js"></script>
+        <script src="assets/js/math_utils/range.js"></script>
+
+        <script src="assets/js/modules/port.js"></script>
+        <script src="assets/js/modules/port_input.js"></script>
+        <script src="assets/js/modules/port_output.js"></script>
+        <script src="assets/js/modules/connection.js"></script>
+
+        <script src="assets/js/midi_manager.js"></script>
+
+        <script src="assets/js/modules/controls/control.js"></script>
+        <script src="assets/js/modules/controls/control_value.js"></script>
+        <script src="assets/js/modules/controls/control_textbox.js"></script>
+        <script src="assets/js/modules/controls/control_numeric.js"></script>
+        <script src="assets/js/modules/controls/control_numeric_integer.js"></script>
+        <script src="assets/js/modules/controls/control_dropdown.js"></script>
+        <script src="assets/js/modules/controls/control_range.js"></script>
+
+        <script src="assets/js/modules/i_module.js"></script>
+        <script src="assets/js/modules/module.js"></script>
+        <script src="assets/js/modules/module_custom.js"></script>
+        <script src="assets/js/modules/module_output.js"></script>
+        <script src="assets/js/modules/module_source.js"></script>
+        <script src="assets/js/modules/module_osc.js"></script>
+        <script src="assets/js/modules/module_midi_keyboard.js"></script>
+        <script src="assets/js/modules/module_noise.js"></script>
+        <script src="assets/js/modules/module_transfer.js"></script>
+        <script src="assets/js/modules/module_gain.js"></script>
+        <script src="assets/js/modules/module_vca.js"></script>
+
+        <script src="assets/js/audio_manager.js"></script>
+        <script src="assets/js/module_manager.js"></script>
+
+        <script src="assets/js/ui/module_renderer.js"></script>
+        <script src="assets/js/ui/module_connect.js"></script>
+        <script src="assets/js/ui/module_midi.js"></script>
+        <script src="assets/js/ui/toolbar_menu.js"></script>
+        <script src="assets/js/ui/context_menu.js"></script>
+
+        <script src="assets/js/main.js"></script>
+    </body>
+</html>

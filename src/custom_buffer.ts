@@ -1,0 +1,5 @@
+class CustomBuffer {
+    constructor() {
+
+    }
+}
