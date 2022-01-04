@@ -1,7 +1,7 @@
 html, body {
     margin: 0;
     padding: 0;
-    background: url("/assets/img/mountain.png") center center fixed, rgb(28, 28, 30);
+    background: url("../../assets/img/mountain.png") center center fixed, rgb(28, 28, 30);
     background-repeat: no-repeat;
     background-size: cover;
     font-family: sans-serif;
