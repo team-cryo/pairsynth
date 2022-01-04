@@ -22,6 +22,7 @@ class Module implements IModule
     {
         const port: PortInput = new PortInput(label);
         this.registeredInputs.push(port);
+        port.module = this;
         return port;
     }
     public getRegisteredInputs()
@@ -33,6 +34,7 @@ class Module implements IModule
     {
         const port: PortOutput = new PortOutput(label, func);
         this.registeredOutputs.push(port);
+        port.module = this;
         return port;
     }
     public getRegisteredOutputs()

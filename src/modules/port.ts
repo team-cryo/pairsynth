@@ -2,6 +2,7 @@ class Port
 {
     private pid: number;
     private label: string;
+    public module: Module; 
 
     constructor(pid: number, label: string)
     {
