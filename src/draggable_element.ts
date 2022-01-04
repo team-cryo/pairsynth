@@ -8,7 +8,6 @@ function makeDraggable(module: JQuery<HTMLDivElement>, modcon: ModuleConnect) {
     let offset: Pos = {x: 0, y: 0};
     let div: JQuery<HTMLDivElement> = module.find(".header");
     let isDown: boolean = false;
-    let modcon: ModuleConnect = modcon;
     let doc: JQuery<Document> = $(document);
     
     // https://stackoverflow.com/a/24050777.
