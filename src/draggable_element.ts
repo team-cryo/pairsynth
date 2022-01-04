@@ -4,13 +4,15 @@ function makeDraggable(module: JQuery<HTMLDivElement>, modcon: ModuleConnect) {
         y: number
     };
 
-    var mousePosition: Pos;
-    var offset: Pos = {x: 0, y: 0};
-    var div: JQuery<HTMLDivElement> = module;
-    var isDown: boolean = false;
-    var modcon: ModuleConnect = modcon;
+    let mousePosition: Pos;
+    let offset: Pos = {x: 0, y: 0};
+    let div: JQuery<HTMLDivElement> = module.find(".header");
+    let isDown: boolean = false;
+    let modcon: ModuleConnect = modcon;
     let doc: JQuery<Document> = $(document);
     
+    // https://stackoverflow.com/a/24050777.
+
     div.on("mousedown", (e: JQuery.MouseDownEvent) => {
         isDown = true;
         const pos: JQuery.Coordinates = div.offset();
