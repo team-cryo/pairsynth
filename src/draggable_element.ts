@@ -30,10 +30,8 @@ function makeDraggable(module: JQuery<HTMLDivElement>, modcon: ModuleConnect) {
         if (isDown) {
             modcon.onMouse(e);
             mousePosition = {
-        
                 x: e.clientX,
                 y: e.clientY
-        
             };
             div.css("left", (mousePosition.x + offset.x) + 'px');
             div.css("top", (mousePosition.y + offset.y) + 'px');
