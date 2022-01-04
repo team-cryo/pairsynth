@@ -13,7 +13,7 @@ function makeDraggable(module: JQuery<HTMLDivElement>, modcon: ModuleConnect) {
     
     div.on("mousedown", (e: JQuery.MouseDownEvent) => {
         isDown = true;
-        let pos: JQuery.Coordinates = div.offset();
+        const pos: JQuery.Coordinates = div.offset();
         offset = {
             x: pos.left - e.clientX,
             y: pos.top - e.clientY
