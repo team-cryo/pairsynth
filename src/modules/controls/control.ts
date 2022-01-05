@@ -45,12 +45,12 @@ class Control implements IHTMLable
     {
         return Mustache.render($("#template-listelement-controls").html(), {
             "label": this.label,
-            "classes": this.clas,
+            "classes": this.classu,
             "content": this.getContentHTML()
         }).replace(/\s+/g, " ").trim();
     }
 
-    protected addEvent(target: string, event: string, callback: ((e: any) => boolean) | ((e: any) => void)): void
+    public addEvent(target: string, event: string, callback: ((e: any) => boolean) | ((e: any) => void)): void
     {
         if(!_.has(this.events, target))
         {
