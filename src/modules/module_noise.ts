@@ -5,7 +5,7 @@ class ModuleNoise extends ModuleSource
         super("Noise-generator");
     }
 
-    protected wave(time: number): number
+    protected wave(): number
     {
         return Math.random()*2 - 1;
     }

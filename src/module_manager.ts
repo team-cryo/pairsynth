@@ -1,8 +1,11 @@
 class ModuleManager {
+    public static modman: ModuleManager;
+
     private output: ModuleOutput;
     private modules: Module[]; //All active modules
 
     constructor(modules: Module[] = []) {
+        ModuleManager.modman = this;
         this.modules = modules;
         this.output = this.addModule(new ModuleOutput());
     }
@@ -12,8 +15,8 @@ class ModuleManager {
         return this.output.getInput(0);
     }
 
-    getAudioOutput(ch: number, time: number) {
-        return this.output.getAudioOutput(ch, time);
+    getAudioOutput(ch: number) {
+        return this.output.getAudioOutput(ch);
     }
 
     addModule<Type extends Module>(module: Type): Type {

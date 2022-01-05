@@ -3,23 +3,23 @@ class PortOutput extends Port
     private static map: PortOutput[] = [];
     private static pid: number = 0;
 
-    private func: Function;
+    private func: () => number;
 
-    constructor(label: string, func: Function) {
+    constructor(label: string, func: () => number) {
         super(PortOutput.pid++, label);
         PortOutput.map[this.getPid()] = this;
-        this.func = func;
+        this.setFunction(func);
     }
 
-    getValue(time: number): number {
-        return Math.max(Math.min(this.func.call(this, [time]), 1), -1);
+    public getValue(): number {
+        return Math.max(Math.min(this.func.call(this), 1), -1);
     }
     
-    setFunction(func: Function) {
+    public setFunction(func: () => number) {
         this.func = func;
     }
     
-    static byPID(pid: number)
+    public static byPID(pid: number)
     {
         if(pid < PortOutput.map.length)
         {

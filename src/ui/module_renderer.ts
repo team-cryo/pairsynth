@@ -1,10 +1,13 @@
 class ModuleRenderer
 {
+    public static modrend: ModuleRenderer;
+    
     public maxY: number;
     private modcon: ModuleConnect;
 
     constructor(modcon: ModuleConnect)
     {
+        ModuleRenderer.modrend = this;
         this.modcon = modcon;
         this.onResize();
         window.addEventListener("resize", this.onResize);
@@ -15,7 +18,7 @@ class ModuleRenderer
         this.maxY = $(document).height();
     }
 
-    getOffset(moduleIndex: number) {
+    private getInitialModulePlacement(moduleIndex: number) {
         const moduleElements: JQuery<HTMLElement> = $(`.modules .module`);
         let offsetY: number = 0;
         let offsetX: number = 0;
@@ -46,15 +49,19 @@ class ModuleRenderer
         return {"x": offsetX, "y": offsetY};
     }
 
-    renderModules(modman: ModuleManager)
+    public renderModules()
     {
+        const modman = ModuleManager.modman;
+        
+        this.loadModules(modman.allModules());
+
         $(".modules .modulePort").remove();
 
         modman.allModules().forEach((module: Module) => this.renderModule(module));
         $(".modulePort").on("click", (e: JQuery.ClickEvent) => {this.modcon.onMouse(e);});
     }
 
-    renderModule(module: Module)
+    public renderModule(module: Module)
     {
         const template: string = module.getHTML();
         $(".modules").append(template);
@@ -77,14 +84,17 @@ class ModuleRenderer
             <i class="fas fa-arrow-right"></i>${m.getLabel()}</div>`);
         });
 
-        const offset = this.getOffset(module.index);
-        moduleElement.css("top", `${offset.y}px`);
-        moduleElement.css("left", `${offset.x}px`);
+        if(module.pos === undefined)
+        {
+            module.pos = this.getInitialModulePlacement(module.index)
+        }
+        moduleElement.css("top", `${module.pos.y}px`);
+        moduleElement.css("left", `${module.pos.x}px`);
         makeDraggable(moduleElement, this.modcon);
         module.attachEvents(moduleElement);
     }
 
-    loadModules(modules: Module[])
+    private loadModules(modules: Module[])
     {
         modules.forEach(module =>
         {

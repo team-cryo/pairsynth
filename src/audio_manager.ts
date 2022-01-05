@@ -1,136 +1,135 @@
 class AudioManager
 {
-    static scaleVolume: number = 0.8;
-    static buflen: number = 0.1; //buflen of 100ms allows frequencies from 20Hz and up to be sampled
+    public static audiowoman: AudioManager; // Inclusive audio manager.
+
+    private static scaleVolume: number = 0.1;
+    private static buflen: number = 2;
+    private static buflenRefresh: number = 0.001;
+    private static sampleRate: number = 22050;
+
+    public static timing: timing = {dt: 0, cycle: 0, time: 0, buf: -1};
+
     private audioContext: AudioContext;
     private source: AudioBufferSourceNode;
     private filter: BiquadFilterNode;
     private buffer: AudioBuffer;
-    private buflen: number;
-    private hasPlayed: boolean;
-    private playing: boolean;
-    private lookahead: number;
-    private oldbuf: [number[], number[]];
+    private hasPlayed: boolean = false;
+    private playing: boolean = false;
+    private timeoffset: number = 0;
+    private bufcount: number = 0;
 
-    constructor(buflen: number = AudioManager.buflen)
+    constructor()
     {
-        this.audioContext = null;
-        this.source = null;
-        this.buffer = null;
-        this.buflen = buflen; //length of buffer in seconds
-        this.lookahead = 0.1;
-        this.hasPlayed = false;
-        this.playing = false;
-        this.oldbuf = [[], []];
+        AudioManager.audiowoman = this;
     }
 
     private createFilter(): void {
         this.filter = this.audioContext.createBiquadFilter();
         this.filter.type = "lowshelf";
-        this.filter.frequency.value = 1000;
+        this.filter.frequency.value = 20000;
         this.filter.connect(this.audioContext.destination);
     }
 
     private createAudioContext(): void
     {
-        this.audioContext = new AudioContext();
+        this.audioContext = new AudioContext({sampleRate: AudioManager.sampleRate});
         this.createFilter();
     }
 
-    private createBuffer(): AudioBuffer
+    private createBuffer(buflen: number): void
     {
-        return this.audioContext.createBuffer(2, this.audioContext.sampleRate*this.buflen*(1 + this.lookahead), this.audioContext.sampleRate);
+        this.bufcount++;
+        this.buffer = this.audioContext.createBuffer(2, this.audioContext.sampleRate*buflen, this.audioContext.sampleRate);
     }
 
-    private fillBuffer(modman: ModuleManager, smooth: boolean): void
+    private fillBuffer(modman: ModuleManager, buflen: number): void
     {
-        this.buffer = this.createBuffer();
         const bufsize = this.buffer.length;
-        const lookaheadoffset = Math.floor(bufsize/(1 + this.lookahead));
 
-        for(let channel = 0; channel < this.buffer.numberOfChannels; channel++)
+        for(let channel = 0, chn = this.buffer.numberOfChannels; channel < chn; channel++)
         {
-            const oldBuffer = this.oldbuf[channel];
-            const oldbufsize = oldBuffer.length;
             const currentBuffer = this.buffer.getChannelData(channel);
+
+            AudioManager.timing = {
+                dt: 1/this.audioContext.sampleRate,
+                cycle: 0,
+                time: 0,
+                buf: this.timeoffset
+            }
 
             for(let i = 0; i < bufsize; i++)
             {
-                const time = i / this.audioContext.sampleRate;
-                let wp = modman.getAudioOutput(channel, time)*AudioManager.scaleVolume;
-
-                if(smooth)
-                {
-                    const ioffset = i + lookaheadoffset;
-                    if(ioffset < oldbufsize)
-                    {
-                        const f1 = (ioffset + 0.5 - lookaheadoffset)/lookaheadoffset;
-                        const f2 = 1 - f1;
-                        const owp = oldBuffer[ioffset];
-                        wp = owp*f2 + wp*f1;
-                    }
-                }
-
-                currentBuffer[i] = wp;
-                //console.log("buf");
+                AudioManager.timing.cycle = i/bufsize;
+                AudioManager.timing.time = (this.timeoffset + i)/this.audioContext.sampleRate;
+                currentBuffer[i] = modman.getAudioOutput(channel)*AudioManager.scaleVolume;
             }
         }
+        this.timeoffset += bufsize;
     }
 
-    public play(modman: ModuleManager, smooth: boolean = true): void
+    public play(): void
     {
+        const modman = ModuleManager.modman;
         if(!this.playing || !this.hasPlayed)
         {
-            this.playBuffer(modman, smooth);
+            this.playBuffer(modman);
         }
     }
 
-    private playBuffer(modman: ModuleManager, smooth: boolean): void
+    public refresh(): void
     {
-        setTimeout((modman: ModuleManager) => {
-            this.refresh(modman);
-        }, this.buflen*1000, modman);
-
-        if(!this.hasPlayed)
-        {
-            this.createAudioContext();
-            this.hasPlayed = true;
-            this.fillBuffer(modman, smooth && this.playing);
-        }
-        
-        const oldSource = this.source;
-        this.source = this.audioContext.createBufferSource();
-        /*this.source.onended = (event: Event) => {
-            this.refresh(modman);
-        };*/
-        this.source.buffer = this.buffer;
-        this.source.connect(this.filter);
-        this.source.start();
-        if(oldSource != null)
-        {
-            oldSource.stop();
-        }
-        
-        this.fillBuffer(modman, smooth);
-
-        this.playing = true;
-    }
-
-    public refresh(modman: ModuleManager, smooth: boolean = true): void
-    {
+        const modman = ModuleManager.modman;
         if(this.playing)
         {
-            this.playing = false;
-            this.playBuffer(modman, smooth);
+            this.stopBuffer();
+            this.fillBuffer(modman, AudioManager.buflenRefresh)
+            this.playBuffer(modman);
         }
     }
 
     public pause(): void
     {
-        if(this.hasPlayed)
+        this.stopBuffer();
+    }
+
+    private stopBuffer(): void
+    {
+        this.playing = false;
+        if(this.bufcount > 0)
         {
             this.source.stop();
         }
-        this.playing = false;
+    }
+    
+    private playBuffer(modman: ModuleManager): void
+    {
+        if(this.bufcount <= 0)
+        {
+            this.hasPlayed = true;
+            this.createAudioContext();
+            this.createBuffer(AudioManager.buflen);
+            this.fillBuffer(modman, AudioManager.buflen);
+        }
+        if(this.bufcount <= 1)
+        {
+            this.source = this.audioContext.createBufferSource();
+            this.source.buffer = this.buffer;
+            this.source.connect(this.filter);
+            this.source.start();
+            this.createBuffer(AudioManager.buflen);
+            this.fillBuffer(modman, AudioManager.buflen);
+            
+            this.source.onended = (event: Event) => {
+                this.bufcount--
+                if(this.playing)
+                {
+                    this.playBuffer(modman);
+                }
+            };
+        }
+
+        this.playing = true;
     }
 }
+
+type timing = {dt: number, cycle: number, time: number, buf: number};

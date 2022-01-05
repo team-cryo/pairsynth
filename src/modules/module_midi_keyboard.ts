@@ -1,8 +1,5 @@
 class ModuleMIDIKeyboard extends Module implements IModuleKeyboardMono
 {
-    private static mid: number = 0;
-    private mid: number;
-    private midman: MIDIManager;
     private octaves: number;
 
     private outputCV: PortOutput;
@@ -10,10 +7,9 @@ class ModuleMIDIKeyboard extends Module implements IModuleKeyboardMono
 
     private controlController: ControlDropdown<MIDIManager.EController>;
 
-    constructor(midman: MIDIManager, octaves: number = 10)
+    constructor(octaves: number = 10, PDE: number = 12)
     {
         super("MIDI-Keyboard");
-        this.midman = midman;
         this.controlController = this.addControl(new ControlDropdown("MIDI-Controller", "None", MIDIManager.EController, MIDIManager.EController.Keyboard))
         this.outputCV = this.registerOutput("CV", this.valueCV);
         this.outputGate = this.registerOutput("Gate", this.valueGate);
@@ -39,11 +35,11 @@ class ModuleMIDIKeyboard extends Module implements IModuleKeyboardMono
 
     private noteOct(): number
     {
-        return this.midman.monoNoteOct(this.controlController.getValue());
+        return MIDIManager.midman.monoNoteOct(this.controlController.getValue());
     }
 
     private gate(): boolean
     {
-        return this.midman.gate(this.controlController.getValue());
+        return MIDIManager.midman.gate(this.controlController.getValue());
     }
 }

@@ -11,9 +11,13 @@ class ModuleCustom extends Module {
         this.status = this.addControl(new ControlStatus("Status"));
     }
 
-    private func(time: number)
+    private func()
     {
         const js: string = this.controlTextbox.getValue();
+
+        //som easily avaliable variables for custom module js
+        const time: number = AudioManager.timing.time;
+        const dt: number = AudioManager.timing.dt;
 
         try {
             return eval(js);

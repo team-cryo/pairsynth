@@ -10,17 +10,17 @@ class Port
         this.label = label;
     }
 
-    getPid()
+    public getPid()
     {
         return this.pid;
     }
 
-    getValue(time: number)
+    public getValue()
     {
-        return 0;
+        throw "getValue must be extended";
     }
 
-    getLabel()
+    public getLabel()
     {
         return this.label;
     }

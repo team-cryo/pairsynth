@@ -2,9 +2,9 @@ class ControlDropdown<Enum> extends ControlNumeric
 {
     private options: string[];
 
-    constructor(label: string, placeholder: string = "None", enumeration: {[name: string]: (number | any)}, value: number | (() => number) = -1, type: string = "dropdown", event: string = "change")
+    constructor(label: string, placeholder: string = "None", enumeration: {[name: string]: (number | any)}, value: number = -1, type: string = "dropdown", event: string = "change")
     {
-        super(label, placeholder, value, type, event);
+        super(label, placeholder, value, 0, type, event);
         this.options = [];
         
         this.options = Object.keys(enumeration).filter((x: string) => (typeof enumeration[x] === "number"));

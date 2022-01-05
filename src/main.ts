@@ -7,17 +7,20 @@
 const modman: ModuleManager = new ModuleManager();
 const midman: MIDIManager = new MIDIManager();
 
-//const lfo1: ModuleOsc = modman.addModule(new ModuleOsc(Waveform.sawtooth, new DistributionRange(0.546, 95.4)));
-//const lfo2: ModuleOsc = modman.addModule(new ModuleOsc(Waveform.square, new DistributionRange(0.454, 78)));
+const lfo1: ModuleOsc = modman.addModule(new ModuleOsc(Waveform.sine, ModuleOsc.rangeLFO));
+//const lfo2: ModuleOsc = modman.addModule(new ModuleOsc(Waveform.square, ModuleOsc.rangeLFO));
 //const midi: ModuleMIDIKeyboard = modman.addModule(new ModuleMIDIKeyboard(midman));
 //const noise: ModuleNoise = modman.addModule(new ModuleNoise());
-const oscillator: ModuleOsc = modman.addModule(new ModuleOsc(Waveform.square));
+const oscillator: ModuleOsc = modman.addModule(new ModuleOsc(Waveform.sine));
 //const vca: ModuleVCA = modman.addModule(new ModuleVCA());
 //const custom: ModuleCustom = modman.addModule(new ModuleCustom());
+
 /*oscillator.getCV().setConnection(midi.getCV());
 vca.getCV().setConnection(midi.getGate());
 vca.getInput().setConnection(oscillator.getOutput());*/
 //modman.getOutput(0).setConnection(vca.getOutput());
+
+oscillator.getCV().setConnection(lfo1.getOutput());
 modman.getOutput(0).setConnection(oscillator.getOutput());
 
 //modman.getOutput(0).setConnection(custom.getRegisteredOutputs()[0]);
@@ -28,14 +31,13 @@ const modcon: ModuleConnect = new ModuleConnect(modman);
 const modrend = new ModuleRenderer(modcon);
 const modmidi = new ModuleMidiView();
 
-const contextMenu = new ContextMenu(audiowoman, modman, modrend);
-modrend.loadModules(modman.allModules());
-modrend.renderModules(modman);
+const contextMenu = new ContextMenu();
+modrend.renderModules();
 modcon.drawLines();
 
 $(".btnPlay").on("click", () =>
 {
-    audiowoman.play(modman);
+    audiowoman.play();
 });
 
 $(".btnStop").on("click", () =>

@@ -1,6 +1,6 @@
 class ControlTextbox extends ControlValue<string, JQuery<HTMLInputElement>>
 {
-    constructor(label: string, placeholder: string = label, value: string | (() => string) = "", type: string = "textbox", event: string = "change")
+    constructor(label: string, placeholder: string = label, value: string = "", type: string = "textbox", event: string = "change")
     {
         super(label, placeholder, value, type, event);
     }
@@ -24,7 +24,7 @@ class ControlTextbox extends ControlValue<string, JQuery<HTMLInputElement>>
         return value; //filter characters if needed
     }
 
-    public parseJS(js: string) {
-        return eval(js);
+    public parseJS() {
+        return eval(this.getValue());
     }
 }

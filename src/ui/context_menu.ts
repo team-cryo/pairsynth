@@ -1,16 +1,10 @@
 class ContextMenu
 {
     private contextMenu: JQuery<HTMLElement>;
-    private audiowoman: AudioManager; // Inclusive audio manager.
-    private modman: ModuleManager;
-    private modrend: ModuleRenderer;
 
-    constructor(audiowoman: AudioManager, modman: ModuleManager, modrend: ModuleRenderer)
+    constructor()
     {
         this.contextMenu = null;
-        this.audiowoman = audiowoman;
-        this.modman = modman;
-        this.modrend = modrend;
         $(document).on("contextmenu", (e: JQuery.ContextMenuEvent) => {this.updateContextMenu(e);});
         $(document).on("click", (e: JQuery.ClickEvent) =>
         {
@@ -36,10 +30,10 @@ class ContextMenu
         
         switch (name) {
             case "play":
-                this.audiowoman.play(this.modman);
+                AudioManager.audiowoman.play();
             break;
             case "stop":
-                this.audiowoman.pause();
+                AudioManager.audiowoman.pause();
             break;
             case "addmodule":
                 this.addModuleFromMenu();
@@ -78,8 +72,8 @@ class ContextMenu
     }
 
     addModuleFromMenu() {
-        this.modman.addModule(new ModuleNoise());
+        ModuleManager.modman.addModule(new ModuleNoise());
         const addModuleMenu = Util.template("#template-add-module", {}, "body");
-        this.modrend.renderModules(this.modman);
+        ModuleRenderer.modrend.renderModules();
     }
 }

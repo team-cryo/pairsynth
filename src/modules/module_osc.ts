@@ -18,7 +18,7 @@ class ModuleOsc extends ModuleSource implements IModuleCVInSingle
     {
         super(waveform.name + (waveform.name != "" ? " " : "") + "Oscillator");
 
-        this.controlCenterFreq = this.addControl(new ControlRange("Center", {min: rangeMinLog2(range), max: rangeMaxLog2(range)}, rangeCenterLog2(freq)));
+        this.controlCenterFreq = this.addControl(new ControlFrequencyRange("Center", {min: rangeMinLog2(range), max: rangeMaxLog2(range)}, rangeCenterLog2(freq)));
         this.controlOctaveRange = this.addControl(new ControlRange("Range", {min: 0, max: rangeOctaves(range)}, rangeOctaves(freq)));
         this.controlPhi = this.addControl(new ControlRange("Phi", {min: -360, max: 360}, (phi*180/Math.PI)));
         this.theta = 0;
@@ -31,28 +31,18 @@ class ModuleOsc extends ModuleSource implements IModuleCVInSingle
         return this.controlPhi.getValue()*Math.PI/180 + 2*Math.PI
     }
 
-    protected wave(time: number): number
+    protected wave(dt: number): number
     {
-        const dt: number = time - this.time;
-        this.time = time;
-        if(time > 0)
-        {
-            const freq = this.getFreq(time);
-            this.theta = (this.theta + 2*Math.PI*dt*freq)%(2*Math.PI);
-            const w = this.waveform.getWave(this.getPhi() + this.theta);
-            return w;
-        }
-        return 0;
+        const freq = this.getFreq();
+        this.theta = (this.theta + 2*Math.PI*dt*freq)%(2*Math.PI);
+        const w = this.waveform.getWave(this.getPhi() + this.theta);
+        return w;
     }
 
-    public getFreq(time: number): number
+    public getFreq(): number
     {
-        const x: number = this.inputCV.getValue(time);
+        const x: number = this.inputCV.getValue();
         const cf: number = this.controlCenterFreq.getValue();
-        if(time % 1 < 0.0001)
-        {
-            console.log(2**cf);
-        }
         return 2**(cf + this.controlOctaveRange.getValue()*x);
     }
 

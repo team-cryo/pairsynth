@@ -2,6 +2,8 @@ class Module implements IModule
 {
     private static moduleIndex: number = 0;
 
+    public pos: {x: number, y: number};
+
     public index: number;
     public name: string;
     public template: string;
@@ -30,7 +32,7 @@ class Module implements IModule
         return this.registeredInputs;
     }
     
-    protected registerOutput(label: string, func: Function = (() => 0)): PortOutput
+    protected registerOutput(label: string, func: (() => number) = (() => 0)): PortOutput
     {
         const port: PortOutput = new PortOutput(label, func);
         this.registeredOutputs.push(port);
@@ -54,6 +56,7 @@ class Module implements IModule
     protected addControl<Type extends Control>(control: Type): Type
     {
         this.controls.push(control);
+        control.module = this;
         return control;
     }
 
@@ -71,5 +74,10 @@ class Module implements IModule
         this.controls.forEach((control: Control, i: number) => {
             control.attachEvents($(element.find(".controlInput")[i]));
         });
+    }
+
+    public onTweak<TypeValue>(control: ControlValue<TypeValue>, value: TypeValue)
+    {
+        AudioManager.audiowoman.refresh();
     }
 }

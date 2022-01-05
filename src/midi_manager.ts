@@ -1,5 +1,7 @@
 class MIDIManager
 {
+    static midman: MIDIManager;
+
     static keyboard: string[] = [
         "z", "s", "x", "d", "c", "v", "g", "b", "h", "n", "j", "m",
         "q", "2", "w", "3", "e", "r", "5", "t", "6", "y", "7", "u", "i"
@@ -20,6 +22,8 @@ class MIDIManager
 
     constructor()
     {
+        MIDIManager.midman = this;
+
         this.keysHeld = [];
         this.lastKey = -1;
         $(document).on("keydown", (e: JQuery.KeyDownEvent) => {this.onKeydownKeyboard(e);});

@@ -1,5 +1,9 @@
 class Control implements IHTMLable
 {
+    private static cid: number;
+    private cid: number;
+
+    public module: Module;
     private label: string;
     private classu: string;
     protected type: string;
@@ -8,6 +12,7 @@ class Control implements IHTMLable
 
     constructor(label: string, type: string)
     {
+        this.cid = Control.cid++;
         this.label = label;
         this.classu = "";
         this.type = type;
@@ -20,9 +25,14 @@ class Control implements IHTMLable
         this.classu = this.classu.length <= 0 ? cl : (this.classu + " " + cl);
     }
 
-    protected setAttribute(attribute: string, value: any): void
+    protected setAttribute(attribute: string, value: any): boolean
     {
-        this.attributes[attribute] = value;
+        if(this.attributes[attribute] != value)
+        {
+            this.attributes[attribute] = value;
+            return true;
+        }
+        return false;
     }
 
     protected getAttribute(attribute: string)
@@ -34,6 +44,11 @@ class Control implements IHTMLable
     protected getAttributes()
     {
         return _.each(this.attributes, (value: any) => value instanceof Function ? value() : value);
+    }
+
+    protected getCID()
+    {
+        return this.cid;
     }
 
     private getContentHTML(): string

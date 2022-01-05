@@ -12,22 +12,22 @@ class PortInput extends Port
         this.connectedTo = connectedTo;
     }
 
-    getValue(time: number): number {
+    public getValue(): number {
         if(this.connectedTo === null)
             return 0;
-        return this.connectedTo.getValue(time);
+        return this.connectedTo.getValue();
     }
 
-    setConnection(connectedTo: PortOutput) {
+    public setConnection(connectedTo: PortOutput) {
         this.connectedTo = connectedTo;
     }
 
-    getConnection(): Connection
+    public getConnection(): Connection
     {
         return this.connectedTo != null ? new Connection(this.connectedTo, this) : null;
     }
 
-    disconnect()
+    public disconnect()
     {
         if(this.getConnection() != null)
         {
@@ -37,7 +37,7 @@ class PortInput extends Port
         return false;
     }
     
-    static byPID(pid: number)
+    public static byPID(pid: number)
     {
         if(pid < PortInput.map.length)
         {

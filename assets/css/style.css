@@ -164,3 +164,8 @@ h1 {
     stroke-width: 2;
     fill: url(#my-cool-gradient) #447799;
 }
+
+input[type=range]
+{
+    width: 100%;
+}
