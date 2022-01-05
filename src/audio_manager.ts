@@ -1,7 +1,7 @@
 class AudioManager
 {
-    static scaleVolume: number = 0.5;
-    static buflen: number = 1;
+    static scaleVolume: number = 0.8;
+    static buflen: number = 0.1; //buflen of 100ms allows frequencies from 20Hz and up to be sampled
     private audioContext: AudioContext;
     private source: AudioBufferSourceNode;
     private filter: BiquadFilterNode;
