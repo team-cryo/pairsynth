@@ -10,7 +10,7 @@ class AudioManager
 
     constructor()
     {
-        this.audioContext = new AudioContext();
+        this.audioContext = null;
         this.source = null;
         this.buffer = null;
         this.buflen = 1; //length of buffer in seconds
@@ -18,11 +18,20 @@ class AudioManager
         this.playing = false;
     }
 
+    private createAudioContext()
+    {
+        this.audioContext = new AudioContext();
+    }
+
     /**
      * @return AudioBuffer
      */
-    createBuffer()
+    private createBuffer()
     {
+        if(this.audioContext === null)
+        {
+            this.createAudioContext();
+        }
         return this.audioContext.createBuffer(2, this.audioContext.sampleRate * this.buflen, this.audioContext.sampleRate);
     }
 
