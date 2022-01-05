@@ -1,7 +1,7 @@
 class ModuleOsc extends ModuleSource implements IModuleCVInSingle
 {
     public static rangeHearing: range = {min: 20, max: 20000}; //human hearing range
-    public static rangePiano: range = {center: 440*2**(3/12), octaves: 3} // from 3 octaves up and down from C4
+    public static rangePiano: range = {center: 440*(2**(3/12)), octaves: 3} // from 3 octaves up and down from C4
     public static rangeLFO: range = {down: 9, max: 20}; //from 20Hz and 9 octaves down
 
     public theta: number;
@@ -18,9 +18,9 @@ class ModuleOsc extends ModuleSource implements IModuleCVInSingle
     {
         super(waveform.name + (waveform.name != "" ? " " : "") + "Oscillator");
 
-        this.controlCenterFreq = this.addControl(new ControlRange("Center", {min: rangeMin(range), max: rangeMax(range)}, 0));
+        this.controlCenterFreq = this.addControl(new ControlRange("Center", {min: rangeMinLog2(range), max: rangeMaxLog2(range)}, rangeCenterLog2(freq)));
         this.controlOctaveRange = this.addControl(new ControlRange("Range", {min: 0, max: rangeOctaves(range)}, rangeOctaves(freq)));
-        this.controlPhi = this.addControl(new ControlRange("Phi", {min: -360, max: 360}, 0));
+        this.controlPhi = this.addControl(new ControlRange("Phi", {min: -360, max: 360}, (phi*180/Math.PI)));
         this.theta = 0;
         this.waveform = waveform;
         this.inputCV = this.registerInput("CV");
@@ -48,7 +48,12 @@ class ModuleOsc extends ModuleSource implements IModuleCVInSingle
     public getFreq(time: number): number
     {
         const x: number = this.inputCV.getValue(time);
-        return 2**(Math.log2(this.controlCenterFreq.getValue()) + this.controlOctaveRange.getValue()*x);
+        const cf: number = this.controlCenterFreq.getValue();
+        if(time % 1 < 0.0001)
+        {
+            console.log(2**cf);
+        }
+        return 2**(cf + this.controlOctaveRange.getValue()*x);
     }
 
     public getCV()

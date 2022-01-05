@@ -11,12 +11,12 @@ const midman: MIDIManager = new MIDIManager();
 //const lfo2: ModuleOsc = modman.addModule(new ModuleOsc(Waveform.square, new DistributionRange(0.454, 78)));
 const midi: ModuleMIDIKeyboard = modman.addModule(new ModuleMIDIKeyboard(midman));
 const noise: ModuleNoise = modman.addModule(new ModuleNoise());
-const oscillator: ModuleOsc = modman.addModule(new ModuleOsc(Waveform.sine));
+const oscillator: ModuleOsc = modman.addModule(new ModuleOsc(Waveform.square));
 const vca: ModuleVCA = modman.addModule(new ModuleVCA());
 const custom: ModuleCustom = modman.addModule(new ModuleCustom());
-oscillator.getCV().setConnection(midi.getCV());
+/*oscillator.getCV().setConnection(midi.getCV());
 vca.getCV().setConnection(midi.getGate());
-vca.getInput().setConnection(oscillator.getOutput());
+vca.getInput().setConnection(oscillator.getOutput());*/
 //modman.getOutput(0).setConnection(vca.getOutput());
 modman.getOutput(0).setConnection(oscillator.getOutput());
 

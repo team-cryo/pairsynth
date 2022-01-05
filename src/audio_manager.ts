@@ -67,16 +67,4 @@ class AudioManager
         this.source.stop();
         this.playing = false;
     }
-
-    squareWave(time: number, freq: number)
-    {
-        var period = 1 / freq;
-        var cycle = (time % period) / period;
-        return Math.sign(cycle - 0.5);
-    }
-
-    whiteNoise()
-    {
-        return Math.random() * 2 - 1;
-    }
 }

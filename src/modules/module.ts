@@ -48,7 +48,7 @@ class Module implements IModule
             "index": this.index,
             "name": this.name,
             "controls": this.getControlsHTML()
-        })
+        });
     }
 
     protected addControl<Type extends Control>(control: Type): Type
