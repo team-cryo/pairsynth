@@ -1,7 +1,7 @@
 class Control implements IHTMLable
 {
     private label: string;
-    private clas: string;
+    private classu: string;
     protected type: string;
     private attributes: {[attribute: string]: any};
     private events: {[target: string]: {[event: string]: ((e: Event) => boolean) | ((e: Event) => void)}};
@@ -9,7 +9,7 @@ class Control implements IHTMLable
     constructor(label: string, type: string)
     {
         this.label = label;
-        this.clas = "";
+        this.classu = "";
         this.type = type;
         this.attributes = {};
         this.events = {};
@@ -17,7 +17,7 @@ class Control implements IHTMLable
 
     protected addClass(cl: string): void
     {
-        this.clas = this.clas.length <= 0 ? cl : (this.clas + " " + cl);
+        this.classu = this.classu.length <= 0 ? cl : (this.classu + " " + cl);
     }
 
     protected setAttribute(attribute: string, value: any): void
@@ -45,12 +45,12 @@ class Control implements IHTMLable
     {
         return Mustache.render($("#template-listelement-controls").html(), {
             "label": this.label,
-            "classes": this.clas,
+            "classes": this.classu,
             "content": this.getContentHTML()
         }).replace(/\s+/g, " ").trim();
     }
 
-    protected addEvent(target: string, event: string, callback: ((e: any) => boolean) | ((e: any) => void)): void
+    public addEvent(target: string, event: string, callback: ((e: any) => boolean) | ((e: any) => void)): void
     {
         if(!_.has(this.events, target))
         {

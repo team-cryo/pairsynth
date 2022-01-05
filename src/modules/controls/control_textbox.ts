@@ -21,6 +21,10 @@ class ControlTextbox extends ControlValue<string, JQuery<HTMLInputElement>>
     
     protected constrainValue(value: string): string
     {
-        return value.toUpperCase(); //filter characters if needed
+        return value; //filter characters if needed
+    }
+
+    public parseJS(js: string) {
+        return eval(js);
     }
 }

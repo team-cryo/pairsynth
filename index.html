@@ -71,7 +71,7 @@
         </template>
         
         <template id="template-control-textbox">
-            <input type="text" class="controlInput" placeholder="{{ placeholder }}">
+            <input type="text" class="controlInput" placeholder="{{ placeholder }}" value="{{ value }}">
         </template>
         
         <template id="template-control-dropdown">
@@ -80,6 +80,10 @@
         
         <template id="template-control-dropdown-selectvalue">
             <option value="{{ value }}">{{ label }}</option>
+        </template>
+
+        <template id="template-control-status">
+            <p style="margin: 0; color: {{ color }}">{{ status }}</p>
         </template>
 
         <template id="template-toolbar-menu">
@@ -137,6 +141,7 @@
         <script src="assets/js/modules/controls/control_numeric_integer.js"></script>
         <script src="assets/js/modules/controls/control_dropdown.js"></script>
         <script src="assets/js/modules/controls/control_range.js"></script>
+        <script src="assets/js/modules/controls/control_status.js"></script>
 
         <script src="assets/js/modules/i_module.js"></script>
         <script src="assets/js/modules/module.js"></script>
