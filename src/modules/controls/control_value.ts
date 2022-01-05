@@ -54,7 +54,7 @@ class ControlValue<TypeValue, TypeHTMLElement extends JQuery<any> = JQuery<HTMLE
     /**
      * Return false to interrupt
      */
-    protected onChange(e: JQuery.ChangeEvent, value: TypeValue)
+    public onChange(e: JQuery.ChangeEvent, value: TypeValue)
     {
         return true;
     }
