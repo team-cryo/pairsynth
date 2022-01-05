@@ -26,7 +26,7 @@ class AudioManager
     private createFilter(): void {
         this.filter = this.audioContext.createBiquadFilter();
         this.filter.type = "lowshelf";
-        this.filter.frequency.value = 20000;
+        this.filter.frequency.value = 11025;
         this.filter.connect(this.audioContext.destination);
     }
 

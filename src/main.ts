@@ -7,7 +7,7 @@
 const modman: ModuleManager = new ModuleManager();
 const midman: MIDIManager = new MIDIManager();
 
-const lfo1: ModuleOsc = modman.addModule(new ModuleOsc(Waveform.sine, ModuleOsc.rangeLFO));
+const lfo1: ModuleOsc = modman.addModule(new ModuleOsc(Waveform.sine, ModuleOsc.rangeLFO, ModuleOsc.rangeLFO));
 //const lfo2: ModuleOsc = modman.addModule(new ModuleOsc(Waveform.square, ModuleOsc.rangeLFO));
 //const midi: ModuleMIDIKeyboard = modman.addModule(new ModuleMIDIKeyboard(midman));
 //const noise: ModuleNoise = modman.addModule(new ModuleNoise());

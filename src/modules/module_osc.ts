@@ -2,7 +2,7 @@ class ModuleOsc extends ModuleSource implements IModuleCVInSingle
 {
     public static rangeHearing: range = {min: 20, max: 20000}; //human hearing range
     public static rangePiano: range = {center: 440*(2**(3/12)), octaves: 3} // from 3 octaves up and down from C4
-    public static rangeLFO: range = {down: 9, max: 20}; //from 20Hz and 9 octaves down
+    public static rangeLFO: range = {down: 10, max: 20}; //from 20Hz and 12 octaves down
 
     public theta: number;
     protected time: number;
