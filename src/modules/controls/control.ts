@@ -65,7 +65,7 @@ class Control implements IHTMLable
         {
             _.each(eventsToTarget, (callback: ((e: Event) => boolean) | ((e: Event) => void), event: string) =>
             {
-                const t = (target.length > 0 ? element.find(target).prevObject : element)
+                const t = (target.length > 0 ? element.closest(target) : element)
                 t.on(event, callback);
                 t.trigger(event);
             });
