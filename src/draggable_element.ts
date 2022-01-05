@@ -6,7 +6,7 @@ function makeDraggable(module: JQuery<HTMLDivElement>, modcon: ModuleConnect) {
 
     let mousePosition: Pos;
     let offset: Pos = {x: 0, y: 0};
-    let div: JQuery<HTMLDivElement> = module.find(".header");
+    let div: JQuery<HTMLElement> = module.find(".header");
     let isDown: boolean = false;
     let doc: JQuery<Document> = $(document);
     
