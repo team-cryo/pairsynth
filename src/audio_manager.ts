@@ -29,7 +29,7 @@ class AudioManager
     /**
      * @param modman ModuleManager
      */
-    fillBuffer(modman: ModuleManager)
+    private fillBuffer(modman: ModuleManager)
     {
         this.buffer = this.createBuffer();
 
@@ -45,7 +45,7 @@ class AudioManager
         }
     }
 
-    play(modman: ModuleManager)
+    public play(modman: ModuleManager)
     {
         if(!this.playing)
         {
@@ -62,7 +62,7 @@ class AudioManager
         }
     }
 
-    pause()
+    public pause()
     {
         this.source.stop();
         this.playing = false;
