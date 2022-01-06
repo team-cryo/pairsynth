@@ -1,7 +1,7 @@
-keyboard input module
+Keyboard input module
 Envelope generator
 Filter
-
+Ikon
 Add module knapp
 
 Bugs med portlines
