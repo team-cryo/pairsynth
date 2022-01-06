@@ -22,7 +22,7 @@ class AudioManager
     private smpOffset: number = 0;
     private buflenLast: number = 0;
     private smpLastRefresh: number = 0;
-    private recording: number[][];
+    private recording: number[][] = [[0, 0]];
 
     constructor()
     {
@@ -54,11 +54,6 @@ class AudioManager
 
         for(let channel = 0, chn = this.buffer.numberOfChannels; channel < chn; channel++)
         {
-            if(this.recording[channel] === undefined)
-            {
-                this.recording[channel] = [0];
-            }
-
             const currentBuffer = this.buffer.getChannelData(channel);
 
             this.timing = {
