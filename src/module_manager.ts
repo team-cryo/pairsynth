@@ -7,15 +7,15 @@ class ModuleManager {
     constructor(modules: Module[] = []) {
         ModuleManager.modman = this;
         this.modules = modules;
-        this.output = this.addModule(new ModuleOutput());
+        this.output = this.addModule(this.addModule(new ModuleOutput()));
     }
 
     getOutput(ch: number): PortInput
     {
-        return this.output.getInput(0);
+        return this.output.getInput(ch);
     }
 
-    getAudioOutput(ch: number) {
+    getAudioOutput(ch: number): number {
         return this.output.getAudioOutput(ch);
     }
 
@@ -24,14 +24,19 @@ class ModuleManager {
         return module;
     }
 
-    deleteModule(module: Module)
+    deleteModule(module: Module): boolean
     {
-        this.modules[module.index] = null;
+        if(module != this.output && this.hasModule(module))
+        {
+            this.modules[module.index] = null;
+            return true;
+        }
+        return false;
     }
 
-    hasModule(module: Module)
+    hasModule(module: Module): boolean
     {
-        return module.index < this.modules.length;
+        return module.index < this.modules.length && this.modules[module.index] != null;
     }
 
     getModuleByIndex(index: number): Module {
@@ -58,10 +63,5 @@ class ModuleManager {
             });
         });
         return cs;
-    }
-
-    forEachModule(func: Function)
-    {
-
     }
 }

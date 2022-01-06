@@ -45,4 +45,9 @@ class PortInput extends Port
         }
         return null;
     }
+    
+    public getClasses(): string
+    {
+        return "moduleInput";
+    }
 }

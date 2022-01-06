@@ -7,3 +7,4 @@ Add module knapp
 Bugs med portlines
 Bug med audio
 [x] Sliders virker ikke på draggable
+Default verdier for controls loader ikke

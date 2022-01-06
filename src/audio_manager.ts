@@ -93,19 +93,17 @@ class AudioManager
             const modman = ModuleManager.modman;
 
             this.stopBuffer();
-            this.fillBuffer(modman, AudioManager.buflenRefresh)
-            this.playBuffer(modman);
         }
     }
 
     public pause(): void
     {
+        this.playing = false;
         this.stopBuffer();
     }
 
     private stopBuffer(): void
     {
-        this.playing = false;
         if(this.bufcount > 0)
         {
             this.source.stop();
@@ -119,7 +117,7 @@ class AudioManager
             this.hasPlayed = true;
             this.createAudioContext();
             this.createBuffer(this.getBuflen());
-            this.fillBuffer(modman, this.getBuflen());
+            this.fillBuffer(modman);
         }
         if(this.bufcount <= 1)
         {
@@ -128,7 +126,7 @@ class AudioManager
             this.source.connect(this.filter);
             this.source.start();
             this.createBuffer(this.getBuflen());
-            this.fillBuffer(modman, this.getBuflen());
+            this.fillBuffer(modman);
             
             this.source.onended = (event: Event) => {
                 this.bufcount--
@@ -142,7 +140,7 @@ class AudioManager
         this.playing = true;
     }
 
-    private getBuflen()
+    private getBuflen(): number
     {
         const bl1 = Math.min(AudioManager.buflenMax, Math.max(AudioManager.buflenMin, (this.timing.smp - this.smpLastRefresh)*this.timing.dt));
         const buflen = Math.min(bl1, this.buflenLast*(1 - AudioManager.buflenGrowth) + bl1*AudioManager.buflenGrowth);

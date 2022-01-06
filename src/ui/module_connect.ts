@@ -83,9 +83,9 @@ class ModuleConnect {
     {
         let elem: JQuery<HTMLElement> = null;
         const pid: number = port.getPid();
-        $(".module .modulePort").each((index: number, elementhtml: HTMLElement) => {
+        $(`.module .modulePort.${port.getClasses()}`).each((index: number, elementhtml: HTMLElement) => {
             const portem: JQuery<HTMLElement> = $(elementhtml);
-            if(portem.data("pid") === pid)
+            if(this.getPIDForElement(portem) === pid)
             {
                 elem = portem;
             }
@@ -95,7 +95,8 @@ class ModuleConnect {
     
     private getPIDForElement(portem: JQuery<HTMLElement>): number
     {
-        return $(portem).data("pid");
+        const pid: number = parseInt($(portem).data("pid"));
+        return pid;
     }
 
     private getLineFromConnection(c: Connection): Line //returns {from: {x, y}, to: {x, y}}

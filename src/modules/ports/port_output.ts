@@ -27,4 +27,9 @@ class PortOutput extends Port
         }
         return null;
     }
+
+    public getClasses(): string
+    {
+        return "moduleOutput";
+    }
 }

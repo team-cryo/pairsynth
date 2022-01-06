@@ -24,4 +24,9 @@ class Port
     {
         return this.label;
     }
+
+    public getClasses(): string
+    {
+        throw "getClasses must be extended";
+    }
 }
