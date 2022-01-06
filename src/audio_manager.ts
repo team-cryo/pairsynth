@@ -56,7 +56,7 @@ class AudioManager
         {
             if(this.recording[channel] === undefined)
             {
-                this.recording[channel] = [];
+                this.recording[channel] = [0];
             }
 
             const currentBuffer = this.buffer.getChannelData(channel);
