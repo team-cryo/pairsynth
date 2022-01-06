@@ -4,10 +4,10 @@ class Menu {
     constructor(title: string = "") {
         this.menu = Util.template("#template-menu", {}, "body");
         this.createTitle(title);
-        this.menu.find(".menuClose").on("click", e => this.onClickClose(e));
+        this.menu.find(".menuClose").on("click", (e: JQuery.ClickEvent) => this.onClickClose(e));
     }
 
-    private onClickClose(e: Event) {
+    private onClickClose(e: JQuery.ClickEvent) {
         this.menu.remove();
     }
 
