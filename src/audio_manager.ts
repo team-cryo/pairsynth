@@ -22,7 +22,7 @@ class AudioManager
     private smpOffset: number = 0;
     private buflenLast: number = 0;
     private smpLastRefresh: number = 0;
-    private recording: number[][] = [[0, 0]];
+    private recording: number[][] = [[0], [0]];
 
     constructor()
     {
