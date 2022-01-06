@@ -1,5 +1,4 @@
 function makeDraggable(module: JQuery<HTMLDivElement>, modcon: ModuleConnect) {
-    return;
     type Pos = {
         x: number,
         y: number
@@ -15,7 +14,7 @@ function makeDraggable(module: JQuery<HTMLDivElement>, modcon: ModuleConnect) {
 
     div.on("mousedown", (e: JQuery.MouseDownEvent) => {
         isDown = true;
-        const pos: JQuery.Coordinates = div.offset();
+        let pos: JQuery.Coordinates = div.offset();
         offset = {
             x: pos.left - e.clientX,
             y: pos.top - e.clientY
@@ -28,15 +27,15 @@ function makeDraggable(module: JQuery<HTMLDivElement>, modcon: ModuleConnect) {
     });
     
     doc.on("mousemove", (e: JQuery.MouseMoveEvent) => {
-        e.preventDefault();
-        if (isDown) {
+        if (isDown && !$(e.target).hasClass(".controlInput")) {
+            e.preventDefault();
             modcon.onMouse(e);
             mousePosition = {
                 x: e.clientX,
                 y: e.clientY
             };
-            div.css("left", (mousePosition.x + offset.x) + 'px');
-            div.css("top", (mousePosition.y + offset.y) + 'px');
+            div.parent().css("left", (mousePosition.x + offset.x) + 'px');
+            div.parent().css("top", (mousePosition.y + offset.y) + 'px');
         }
     });
 }
