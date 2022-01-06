@@ -22,6 +22,7 @@ class AudioManager
     private smpOffset: number = 0;
     private buflenLast: number = 0;
     private smpLastRefresh: number = 0;
+    private recording: number[][];
 
     constructor()
     {
@@ -47,12 +48,17 @@ class AudioManager
         this.buffer = this.audioContext.createBuffer(2, this.audioContext.sampleRate*buflen, this.audioContext.sampleRate);
     }
 
-    private fillBuffer(modman: ModuleManager): void
+    private fillBuffer(modman: ModuleManager, buflen: number): void
     {
-        const bufsize = this.buffer.length;
+        const bufsizeactual = Math.round(this.audioContext.sampleRate*buflen);
 
         for(let channel = 0, chn = this.buffer.numberOfChannels; channel < chn; channel++)
         {
+            if(this.recording[channel] === undefined)
+            {
+                this.recording[channel] = [];
+            }
+
             const currentBuffer = this.buffer.getChannelData(channel);
 
             this.timing = {
@@ -63,17 +69,19 @@ class AudioManager
                 smp: 0
             }
 
-            for(let i = 0; i < bufsize; i++)
+            for(let i = 0; i < bufsizeactual; i++)
             {
-                this.timing.cycle = i/bufsize;
+                this.timing.cycle = i/bufsizeactual;
                 this.timing.smp = this.smpOffset + i;
                 this.timing.time = this.timing.smp*this.timing.dt;
                 currentBuffer[i] = modman.getAudioOutput(channel)*AudioManager.scaleVolume;
+                this.recording[channel][this.timing.smp] = currentBuffer[i];
             }
         }
-        this.buflenLast = bufsize;
+
+        this.buflenLast = bufsizeactual;
         this.buf++;
-        this.smpOffset += bufsize;
+        this.smpOffset += bufsizeactual;
     }
 
     public play(): void
@@ -112,12 +120,13 @@ class AudioManager
     
     private playBuffer(modman: ModuleManager): void
     {
+        const buflen = this.getBuflen();
         if(this.bufcount <= 0)
         {
             this.hasPlayed = true;
             this.createAudioContext();
-            this.createBuffer(this.getBuflen());
-            this.fillBuffer(modman);
+            this.createBuffer(buflen);
+            this.fillBuffer(modman, buflen);
         }
         if(this.bufcount <= 1)
         {
@@ -125,8 +134,8 @@ class AudioManager
             this.source.buffer = this.buffer;
             this.source.connect(this.filter);
             this.source.start();
-            this.createBuffer(this.getBuflen());
-            this.fillBuffer(modman);
+            this.createBuffer(buflen);
+            this.fillBuffer(modman, buflen);
             
             this.source.onended = (event: Event) => {
                 this.bufcount--
