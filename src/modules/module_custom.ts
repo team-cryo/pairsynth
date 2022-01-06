@@ -14,10 +14,11 @@ class ModuleCustom extends Module {
     private func()
     {
         const js: string = this.controlTextbox.getValue();
+        const timing: timing = AudioManager.audiowoman.timing;
 
         //som easily avaliable variables for custom module js
-        const time: number = AudioManager.timing.time;
-        const dt: number = AudioManager.timing.dt;
+        const time: number = audiowoman.timing.time;
+        const dt: number = audiowoman.timing.dt;
 
         try {
             return eval(js);

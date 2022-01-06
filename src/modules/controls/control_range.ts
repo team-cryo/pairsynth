@@ -28,9 +28,10 @@ class ControlRange extends ControlNumeric
     public getValue(): number
     {
         const val = super.getValue();
-        if(AudioManager.timing.buf === this.bufLastChange + 1)
+        const timing: timing = AudioManager.audiowoman.timing;
+        if(timing.buf === this.bufLastChange + 1)
         {
-            const f1 = AudioManager.timing.cycle;
+            const f1 = timing.cycle;
             const f2 = 1 - f1;
             return val*f1 + this.valueLastChange*f2;
         }

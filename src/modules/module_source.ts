@@ -12,7 +12,7 @@ class ModuleSource extends Module implements IModuleOutputSingle
 
     private signal(): number
     {
-        return this.wave(AudioManager.timing.dt)*this.amplitude.getValue();
+        return this.wave(AudioManager.audiowoman.timing.dt)*this.amplitude.getValue();
     }
 
     protected wave(dt: number): number

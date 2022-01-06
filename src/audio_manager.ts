@@ -3,11 +3,13 @@ class AudioManager
     public static audiowoman: AudioManager; // Inclusive audio manager.
 
     private static scaleVolume: number = 0.1;
-    private static buflen: number = 2;
     private static buflenRefresh: number = 0.001;
+    private static buflenMin: number = 0.1;
+    private static buflenMax: number = 100;
     private static sampleRate: number = 22050;
+    private static buflenGrowth: number = 0.8;
 
-    public static timing: timing = {dt: 0, cycle: 0, time: 0, buf: -1};
+    public timing: timing = {dt: 0, cycle: 0, time: 0, buf: -1, smp: -1};
 
     private audioContext: AudioContext;
     private source: AudioBufferSourceNode;
@@ -15,8 +17,11 @@ class AudioManager
     private buffer: AudioBuffer;
     private hasPlayed: boolean = false;
     private playing: boolean = false;
-    private timeoffset: number = 0;
     private bufcount: number = 0;
+    private buf: number = 0;
+    private smpOffset: number = 0;
+    private buflenLast: number = 0;
+    private smpLastRefresh: number = 0;
 
     constructor()
     {
@@ -42,7 +47,7 @@ class AudioManager
         this.buffer = this.audioContext.createBuffer(2, this.audioContext.sampleRate*buflen, this.audioContext.sampleRate);
     }
 
-    private fillBuffer(modman: ModuleManager, buflen: number): void
+    private fillBuffer(modman: ModuleManager): void
     {
         const bufsize = this.buffer.length;
 
@@ -50,21 +55,25 @@ class AudioManager
         {
             const currentBuffer = this.buffer.getChannelData(channel);
 
-            AudioManager.timing = {
+            this.timing = {
                 dt: 1/this.audioContext.sampleRate,
                 cycle: 0,
                 time: 0,
-                buf: this.timeoffset
+                buf: this.buf,
+                smp: 0
             }
 
             for(let i = 0; i < bufsize; i++)
             {
-                AudioManager.timing.cycle = i/bufsize;
-                AudioManager.timing.time = (this.timeoffset + i)/this.audioContext.sampleRate;
+                this.timing.cycle = i/bufsize;
+                this.timing.smp = this.smpOffset + i;
+                this.timing.time = this.timing.smp*this.timing.dt;
                 currentBuffer[i] = modman.getAudioOutput(channel)*AudioManager.scaleVolume;
             }
         }
-        this.timeoffset += bufsize;
+        this.buflenLast = bufsize;
+        this.buf++;
+        this.smpOffset += bufsize;
     }
 
     public play(): void
@@ -78,9 +87,11 @@ class AudioManager
 
     public refresh(): void
     {
-        const modman = ModuleManager.modman;
         if(this.playing)
         {
+            this.smpLastRefresh = this.timing.smp;
+            const modman = ModuleManager.modman;
+
             this.stopBuffer();
             this.fillBuffer(modman, AudioManager.buflenRefresh)
             this.playBuffer(modman);
@@ -107,8 +118,8 @@ class AudioManager
         {
             this.hasPlayed = true;
             this.createAudioContext();
-            this.createBuffer(AudioManager.buflen);
-            this.fillBuffer(modman, AudioManager.buflen);
+            this.createBuffer(this.getBuflen());
+            this.fillBuffer(modman, this.getBuflen());
         }
         if(this.bufcount <= 1)
         {
@@ -116,8 +127,8 @@ class AudioManager
             this.source.buffer = this.buffer;
             this.source.connect(this.filter);
             this.source.start();
-            this.createBuffer(AudioManager.buflen);
-            this.fillBuffer(modman, AudioManager.buflen);
+            this.createBuffer(this.getBuflen());
+            this.fillBuffer(modman, this.getBuflen());
             
             this.source.onended = (event: Event) => {
                 this.bufcount--
@@ -130,6 +141,13 @@ class AudioManager
 
         this.playing = true;
     }
+
+    private getBuflen()
+    {
+        const bl1 = Math.min(AudioManager.buflenMax, Math.max(AudioManager.buflenMin, (this.timing.smp - this.smpLastRefresh)*this.timing.dt));
+        const buflen = Math.min(bl1, this.buflenLast*(1 - AudioManager.buflenGrowth) + bl1*AudioManager.buflenGrowth);
+        return buflen;
+    }
 }
 
-type timing = {dt: number, cycle: number, time: number, buf: number};
+type timing = {dt: number, cycle: number, time: number, buf: number, smp: number};

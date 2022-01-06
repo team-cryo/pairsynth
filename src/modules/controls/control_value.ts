@@ -24,7 +24,7 @@ class ControlValue<TypeValue, TypeHTMLElement extends JQuery<any> = JQuery<HTMLE
         }
         this.valueLastChange = oldValue;
         this.bufLastChange = this.bufChange;
-        this.bufChange = AudioManager.timing.buf;
+        this.bufChange = AudioManager.audiowoman.timing.buf;
         if(!this.isValueLegal(value))
         {
             this.setValueToTarget(target, this.constrainValue(value));

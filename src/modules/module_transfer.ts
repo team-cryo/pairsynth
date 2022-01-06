@@ -7,7 +7,7 @@ class ModuleTransfer extends Module implements IModuleOutputSingle, IModuleInput
     {
         super(name);
         this.input = this.registerInput("In");
-        this.output = this.registerOutput("Out", () => {return this.transferFunction.apply(this, [this.input.getValue(), AudioManager.timing.dt])});
+        this.output = this.registerOutput("Out", () => {return this.transferFunction.apply(this, [this.input.getValue(), AudioManager.audiowoman.timing.dt])});
     }
     getOutput(): PortOutput
     {
