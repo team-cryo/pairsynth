@@ -44,3 +44,8 @@ $(".btnStop").on("click", () =>
 {
     audiowoman.pause();
 });
+
+$(".btnReset").on("click", () =>
+{
+    audiowoman.reset();
+})

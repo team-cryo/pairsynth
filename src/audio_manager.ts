@@ -105,6 +105,11 @@ class AudioManager
         this.stopBuffer();
     }
 
+    public reset(): void
+    {
+        this.smpOffset = 0;
+    }
+
     private stopBuffer(): void
     {
         if(this.bufcount > 0)
