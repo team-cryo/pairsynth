@@ -13,6 +13,11 @@ class ModuleRenderer
         window.addEventListener("resize", this.onResize);
     }
 
+    public getModcon()
+    {
+        return this.modcon;
+    }
+
     private onResize()
     {
         this.maxY = $(document).height();
