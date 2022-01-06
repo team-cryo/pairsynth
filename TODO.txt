@@ -1,0 +1,9 @@
+keyboard input module
+Envelope generator
+Filter
+
+Add module knapp
+
+Bugs med portlines
+Bug med audio
+[x] Sliders virker ikke på draggable
