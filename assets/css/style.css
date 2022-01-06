@@ -84,6 +84,30 @@ h1 {
     left: 15px;
 }
 
+.menu {
+    position: absolute;
+    z-index: 1000;
+    width: 350px;
+    height: 200px;
+    padding: 0 15px;
+    background-color: rgb(20, 20, 20);
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    top: 40px;
+    left: 15px;
+}
+
+.menu .menuTitle {
+    color: #fff;
+}
+
+.menu .menuClose {
+    color: #fff;
+    cursor: pointer;
+    text-align: right;
+    display: inline-block;
+}
+
 .module {
     z-index: 100;
     position: absolute;
