@@ -23,19 +23,18 @@ function makeDraggable(module: JQuery<HTMLDivElement>, modcon: ModuleConnect) {
     
     doc.on("mouseup", (e: JQuery.MouseUpEvent) => {
         isDown = false;
-        modcon.onMouse(e);
     });
     
     doc.on("mousemove", (e: JQuery.MouseMoveEvent) => {
         if (isDown && !$(e.target).hasClass(".controlInput")) {
             e.preventDefault();
-            modcon.onMouse(e);
             mousePosition = {
                 x: e.clientX,
                 y: e.clientY
             };
-            div.parent().css("left", (mousePosition.x + offset.x) + 'px');
-            div.parent().css("top", (mousePosition.y + offset.y) + 'px');
+            module.css("left", (mousePosition.x + offset.x) + 'px');
+            module.css("top", (mousePosition.y + offset.y) + 'px');
+            modcon.onMouse(e, module);
         }
     });
 }

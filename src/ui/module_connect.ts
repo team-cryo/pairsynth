@@ -10,10 +10,8 @@ class ModuleConnect {
     public drawLines()
     {
         $("#lines .portLine").remove();
-        if($(".modules").children(".module").length > 0)
-        {
-            this.modman.getConnections().forEach((con: Connection) => this.drawLine(this.getLineFromConnection(con), con.i.getPid()));
-        }
+        const cs: Connection[] = this.modman.getConnections();
+        cs.forEach((con: Connection) => this.drawLine(this.getLineFromConnection(con), con.i.getPid()));
     }
 
     private drawLine(con: Line, pid: number): void
@@ -70,7 +68,7 @@ class ModuleConnect {
         return false;
     }
 
-    public onMouse(e: JQuery.MouseEventBase<HTMLElement, undefined, HTMLElement, HTMLElement>)
+    public onMouse(e: JQuery.MouseEventBase, module: JQuery<HTMLDivElement>)
     {
         const portem: JQuery<HTMLElement> = ($(e.target));
         if(this.makeConnection(portem) || true)
