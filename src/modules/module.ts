@@ -11,6 +11,8 @@ class Module implements IModule
     private registeredOutputs: PortOutput[];
     private controls: Control[];
 
+    private sampleVars: {[varName: string]: number[]} = {};
+
     constructor(name: string) {
         this.index = Module.moduleIndex++;
         this.name = name;
@@ -79,5 +81,28 @@ class Module implements IModule
     public onTweak<TypeValue>(control: ControlValue<TypeValue>, value: TypeValue)
     {
         AudioManager.audiowoman.refresh();
+    }
+
+    public beginNewBufferLog(): void
+    {
+        const smp = AudioManager.audiowoman.timing.smp;
+        _.each(this.sampleVars, (samples: number[], varName: string) => {
+            this.sampleVars[varName] = []
+            this.sampleVars[varName][smp] = ((samples.length <= 0) ? 0 : samples[smp]);
+        })
+    }
+
+    public logValueOfSample(varName: string, value: number): void
+    {
+        if(!this.sampleVars[varName])
+        {
+            this.sampleVars[varName] = [];
+        }
+        this.sampleVars[varName][(AudioManager.audiowoman && AudioManager.audiowoman.timing) ? AudioManager.audiowoman.timing.smp + 1 : 0] = value;
+    }
+
+    public retriveValueOfLastSample(varName: string): number
+    {
+        return this.sampleVars[varName][AudioManager.audiowoman.timing.smp];
     }
 }

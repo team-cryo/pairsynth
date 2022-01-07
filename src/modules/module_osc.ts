@@ -5,7 +5,6 @@ class ModuleOsc extends ModuleSource implements IModuleCVInSingle
     public static rangeLFO: range = {down: 10, max: 20}; //from 20Hz and 12 octaves down
 
     public theta: number;
-    protected time: number;
 
     private waveform: Waveform;
     private inputCV: PortInput;
@@ -22,6 +21,7 @@ class ModuleOsc extends ModuleSource implements IModuleCVInSingle
         this.controlOctaveRange = this.addControl(new ControlRange("Range", {min: 0, max: rangeOctaves(range)}, rangeOctaves(freq)));
         this.controlPhi = this.addControl(new ControlRange("Phi", {min: -360, max: 360}, (phi*180/Math.PI)));
         this.theta = 0;
+        this.logValueOfSample("theta", this.theta);
         this.waveform = waveform;
         this.inputCV = this.registerInput("CV");
     }
@@ -34,7 +34,8 @@ class ModuleOsc extends ModuleSource implements IModuleCVInSingle
     protected wave(dt: number): number
     {
         const freq = this.getFreq();
-        this.theta = (this.theta + 2*Math.PI*dt*freq)%(2*Math.PI);
+        this.theta = (this.retriveValueOfLastSample("theta") + 2*Math.PI*dt*freq)%(2*Math.PI);
+        this.logValueOfSample("theta", this.theta);
         const w = this.waveform.getWave(this.getPhi() + this.theta);
         return w;
     }

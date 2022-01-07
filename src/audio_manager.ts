@@ -3,10 +3,9 @@ class AudioManager
     public static audiowoman: AudioManager; // Inclusive audio manager.
 
     private static scaleVolume: number = 0.1;
-    private static buflenRefresh: number = 0.001;
-    private static buflenMin: number = 0.1;
-    private static buflenMax: number = 1;
     private static sampleRate: number = 22050;
+    private static buflenMin: number = 2/AudioManager.sampleRate;
+    private static buflenMax: number = 100;
     private static buflenGrowth: number = 0.8;
 
     public timing: timing = {dt: 0, cycle: 0, time: 0, buf: -1, smp: -1};
@@ -19,8 +18,8 @@ class AudioManager
     private playing: boolean = false;
     private bufcount: number = 0;
     private buf: number = 0;
-    private smpOffset: number = 0;
-    private lastSmpIndex: number = 0;
+    private lastSmpOffset: number = 0;
+    private smpOffset: number = 0
     private buflenLast: number = 0;
     private smpLastRefresh: number = 0;
     private recording: number[][] = [[0], [0]];
@@ -64,12 +63,14 @@ class AudioManager
             const currentBuffer = this.buffer.getChannelData(channel);
 
             this.timing = {
-                dt: (this.smpOffset - this.lastSmpIndex)/this.audioContext.sampleRate,
+                dt: 1/this.audioContext.sampleRate,
                 cycle: 0,
-                time: 0,
                 buf: this.buf,
-                smp: 0
+                smp: this.smpOffset,
+                time: this.smpOffset*this.timing.dt
             }
+
+            modman.beginNewBufferLog();
 
             for(let i = 0; i < bufsizeactual; i++)
             {
@@ -78,15 +79,14 @@ class AudioManager
                 this.timing.time = this.timing.smp*this.timing.dt;
                 currentBuffer[i] = modman.getAudioOutput(channel)*AudioManager.scaleVolume;
                 this.recording[channel][this.timing.smp] = currentBuffer[i];
-                this.timing.dt = 1/this.audioContext.sampleRate;
             }
         }
 
         this.buflenLast = bufsizeactual;
         this.buf++;
+        this.lastSmpOffset = bufsizeactual;
         this.smpOffset += bufsizeactual;
-        this.lastSmpIndex = this.smpOffset - 1;
-        this.lastBufferEndTime = Date.now();
+        this.lastBufferEndTime = Date.now()/1000 + buflen;
     }
 
     public play(): void
@@ -123,7 +123,12 @@ class AudioManager
         if(this.bufcount > 0)
         {
             this.source.stop();
-            this.smpOffset += Math.round((this.lastBufferEndTime - Date.now())/1000*AudioManager.sampleRate);
+            const timeTurnback = this.lastBufferEndTime - Date.now()/1000;
+            if(timeTurnback > 0)
+            {
+                const smpTurnback = Math.round(timeTurnback*AudioManager.sampleRate);
+                this.smpOffset = Math.max(this.lastSmpOffset + 1, this.smpOffset - smpTurnback);
+            }
         }
     }
     

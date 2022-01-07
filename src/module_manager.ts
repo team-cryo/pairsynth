@@ -10,21 +10,21 @@ class ModuleManager {
         this.output = this.addModule(this.addModule(new ModuleOutput()));
     }
 
-    getOutput(ch: number): PortInput
+    public getOutput(ch: number): PortInput
     {
         return this.output.getInput(ch);
     }
 
-    getAudioOutput(ch: number): number {
+    public getAudioOutput(ch: number): number {
         return this.output.getAudioOutput(ch);
     }
 
-    addModule<Type extends Module>(module: Type): Type {
+    public addModule<Type extends Module>(module: Type): Type {
         this.modules[module.index] = module;
         return module;
     }
 
-    deleteModule(module: Module): boolean
+    public deleteModule(module: Module): boolean
     {
         if(module != this.output && this.hasModule(module))
         {
@@ -34,23 +34,26 @@ class ModuleManager {
         return false;
     }
 
-    hasModule(module: Module): boolean
+    public hasModule(module: Module): boolean
     {
         return module.index < this.modules.length && this.modules[module.index] != null;
     }
 
-    getModuleByIndex(index: number): Module {
+    public getModuleByIndex(index: number): Module
+    {
         if(index < this.modules.length)
+        {
             return this.modules[index];
+        }
         return null;
     }
 
-    allModules()
+    public allModules(): Module[]
     {
         return [...this.modules];
     }
 
-    getConnections(): Connection[]
+    public getConnections(): Connection[]
     {
         const cs: Connection[] = [];
         this.allModules().forEach((module: Module) => {
@@ -63,5 +66,12 @@ class ModuleManager {
             });
         });
         return cs;
+    }
+
+    public beginNewBufferLog(): void
+    {
+        this.allModules().forEach((module: Module) => {
+            module.beginNewBufferLog();
+        });
     }
 }
