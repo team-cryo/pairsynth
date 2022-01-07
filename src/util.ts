@@ -4,5 +4,9 @@ const Util = {
         const elem: JQuery<HTMLElement> = $(template);
         $(dest).append(elem);
         return elem;
+    },
+
+    clamp(num: number, min: number, max: number) {
+        return Math.min(Math.max(num, min), max);
     }
 };
