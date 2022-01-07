@@ -169,6 +169,11 @@ class AudioManager
         const buflen = Math.min(bl1, this.buflenLast*(1 - AudioManager.buflenGrowth) + bl1*AudioManager.buflenGrowth);
         return buflen;
     }
+    
+    public export(): string {
+        const wav = new WAV(this.recording, AudioManager.sampleRate);
+        return wav.export(); // A download link for the buffer.
+    }
 }
 
 type timing = {dt: number, cycle: number, time: number, buf: number, smp: number};
