@@ -38,6 +38,17 @@ class ContextMenu
             case "addmodule":
                 this.addModuleFromMenu();
             break
+            case "export":
+                const link = AudioManager.audiowoman.export();
+
+                const download = document.createElement("a");
+                download.href = link;
+                download.download = "file.wav";
+                download.innerHTML = "Download";
+
+                const menu = new Menu("Export");
+                menu.addElement(download);
+            break;
         }
     }
     
