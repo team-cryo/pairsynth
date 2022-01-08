@@ -50,7 +50,7 @@ class ModuleManager {
 
     public allModules(): Module[]
     {
-        return [...this.modules];
+        return this.modules;
     }
 
     public getConnections(): Connection[]
