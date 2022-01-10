@@ -63,7 +63,7 @@ class ModuleRenderer
         $(".modules .modulePort").remove();
 
         modman.allModules().forEach((module: Module) => this.renderModule(module));
-        $(".modulePort").on("click", (e: JQuery.ClickEvent) => {this.modcon.onMouse(e);});
+        $(".modulePort").on("click", (e: JQuery.ClickEvent) => {this.modcon.onMouse(e, $(e.target).closest(".module"));});
     }
 
     public renderModule(module: Module)
