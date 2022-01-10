@@ -21,6 +21,10 @@ class ModuleManager {
 
     public addModule<Type extends Module>(module: Type): Type {
         this.modules[module.index] = module;
+        if(AudioManager.audiowoman)
+        {
+            AudioManager.audiowoman.refresh();
+        }
         return module;
     }
 
@@ -29,6 +33,10 @@ class ModuleManager {
         if(module != this.output && this.hasModule(module))
         {
             this.modules[module.index] = null;
+            if(AudioManager.audiowoman)
+            {
+                AudioManager.audiowoman.refresh();
+            }
             return true;
         }
         return false;

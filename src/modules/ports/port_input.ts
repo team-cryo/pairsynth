@@ -14,12 +14,18 @@ class PortInput extends Port
 
     public getValue(): number {
         if(this.connectedTo === null)
+        {
             return 0;
+        }
         return this.connectedTo.getValue();
     }
 
     public setConnection(connectedTo: PortOutput) {
         this.connectedTo = connectedTo;
+        if(AudioManager.audiowoman)
+        {
+            AudioManager.audiowoman.refresh();
+        }
     }
 
     public getConnection(): Connection
@@ -32,6 +38,7 @@ class PortInput extends Port
         if(this.getConnection() != null)
         {
             this.setConnection(null);
+            AudioManager.audiowoman.refresh();
             return true;
         }
         return false;
