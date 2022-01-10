@@ -18,6 +18,10 @@ class ControlValue<TypeValue, TypeHTMLElement extends JQuery<any> = JQuery<HTMLE
         const target: TypeHTMLElement = $(e.target) as TypeHTMLElement;
         const oldValue: TypeValue = this.getAttribute("value");
         const value: TypeValue = this.parseValue(this.getValueFromTarget(target));
+        if(value === undefined)
+        {
+            throw "sum ting wong: undefined value";
+        }
         if(oldValue === value)
         {
             return true;
@@ -27,7 +31,11 @@ class ControlValue<TypeValue, TypeHTMLElement extends JQuery<any> = JQuery<HTMLE
         this.bufChange = AudioManager.audiowoman.timing.buf;
         if(!this.isValueLegal(value))
         {
-            this.setValueToTarget(target, this.constrainValue(value));
+            const cvalue: TypeValue = this.constrainValue(value);
+            if(this.isValueLegal(cvalue))
+            {
+                this.setValueToTarget(target, cvalue);
+            }
             return this.illegalValueCallback(e, value);
         }
         if(this.setAttribute("value", value))

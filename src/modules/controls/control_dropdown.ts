@@ -4,7 +4,7 @@ class ControlDropdown<Enum> extends ControlNumeric
 
     constructor(label: string, placeholder: string = "None", enumeration: {[name: string]: (number | any)}, value: number = -1, type: string = "dropdown", event: string = "change")
     {
-        super(label, placeholder, value, 0, type, event);
+        super(label, placeholder, {min: -1, max: enumeration.length/2 - 1}, value, 0, type, event);
         this.options = [];
         
         this.options = Object.keys(enumeration).filter((x: string) => (typeof enumeration[x] === "number"));
