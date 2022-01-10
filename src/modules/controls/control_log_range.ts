@@ -19,4 +19,9 @@ class ControlLogRange extends ControlRange
     {
         return this.log(value);
     }
+
+    protected displayNumber(): number
+    {
+        return this.processValue(this.getValue());
+    }
 }
