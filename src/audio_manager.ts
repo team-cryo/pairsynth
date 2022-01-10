@@ -2,17 +2,17 @@ class AudioManager
 {
     public static audiowoman: AudioManager; // Inclusive audio manager.
 
-    private static scaleVolume: number = 0.1;
-    private static sampleRate: number = 22050;
-    private static buflenMin: number = 2/AudioManager.sampleRate;
-    private static buflenMax: number = 100;
-    private static buflenGrowth: number = 0.8;
+    private static scaleVolume: number = 0.8;
+    private static sampleRate: number = 44100;
+    private static buflenMin: number = 100/AudioManager.sampleRate;
+    private static buflenMax: number = 10;
+    private static buflenGrowth: number = 0.1;
 
     public timing: timing = {dt: 0, cycle: 0, time: 0, buf: -1, smp: -1};
 
     private audioContext: AudioContext;
-    private source: AudioBufferSourceNode;
     private filter: BiquadFilterNode;
+    private source: AudioBufferSourceNode;
     private buffer: AudioBuffer;
     private hasPlayed: boolean = false;
     private playing: boolean = false;
@@ -20,7 +20,7 @@ class AudioManager
     private buf: number = 0;
     private lastSmpOffset: number = 0;
     private smpOffset: number = 0
-    private buflenLast: number = 0;
+    private bufsizeLast: number = 0;
     private smpLastRefresh: number = 0;
     private recording: number[][] = [[0], [0]];
     private lastBufferEndTime: number;
@@ -30,16 +30,16 @@ class AudioManager
         AudioManager.audiowoman = this;
     }
 
-    public getSampleLenMax()
-    {
-        return Math.round(AudioManager.buflenMax/AudioManager.sampleRate);
-    }
-
     private createFilter(): void {
         this.filter = this.audioContext.createBiquadFilter();
         this.filter.type = "lowshelf";
-        this.filter.frequency.value = 11025;
+        this.filter.frequency.value = AudioManager.sampleRate/4;
         this.filter.connect(this.audioContext.destination);
+    }
+
+    public getSampleLenMax()
+    {
+        return Math.round(AudioManager.buflenMax/AudioManager.sampleRate);
     }
 
     private createAudioContext(): void
@@ -50,7 +50,6 @@ class AudioManager
 
     private createBuffer(buflen: number): void
     {
-        this.bufcount++;
         this.buffer = this.audioContext.createBuffer(2, this.audioContext.sampleRate*buflen, this.audioContext.sampleRate);
     }
 
@@ -82,11 +81,10 @@ class AudioManager
             }
         }
 
-        this.buflenLast = bufsizeactual;
-        this.buf++;
+        this.bufsizeLast = bufsizeactual;
         this.lastSmpOffset = bufsizeactual;
+        this.buf++;
         this.smpOffset += bufsizeactual;
-        this.lastBufferEndTime = Date.now()/1000 + buflen;
     }
 
     public play(): void
@@ -100,9 +98,20 @@ class AudioManager
 
     public refresh(): void
     {
-        if(this.playing)
+        if(this.playing && this.bufcount <= 1)
         {
+            this.bufcount--
+            const timeTurnback = this.lastBufferEndTime - Date.now()/1000;
             this.smpLastRefresh = this.timing.smp;
+            if(timeTurnback > AudioManager.buflenMin*2)
+            {
+                const smpTurnback = Math.round(timeTurnback*AudioManager.sampleRate);
+                if(smpTurnback > this.bufsizeLast - AudioManager.buflenMin/AudioManager.sampleRate)
+                {
+                    return;
+                }
+                this.smpLastRefresh -= smpTurnback;
+            }
             this.stopBuffer();
         }
     }
@@ -122,11 +131,12 @@ class AudioManager
     {
         if(this.bufcount > 0)
         {
-            this.source.stop();
             const timeTurnback = this.lastBufferEndTime - Date.now()/1000;
-            if(timeTurnback > 0)
+            if(timeTurnback > AudioManager.buflenMin)
             {
+                this.source.stop();
                 const smpTurnback = Math.round(timeTurnback*AudioManager.sampleRate);
+                this.buf--;
                 this.smpOffset = Math.max(this.lastSmpOffset + 1, this.smpOffset - smpTurnback);
             }
         }
@@ -141,13 +151,13 @@ class AudioManager
             this.createAudioContext();
             this.createBuffer(buflen);
             this.fillBuffer(modman, buflen);
-        }
-        if(this.bufcount <= 1)
-        {
+
             this.source = this.audioContext.createBufferSource();
             this.source.buffer = this.buffer;
             this.source.connect(this.filter);
+            this.bufcount++;
             this.source.start();
+            this.lastBufferEndTime = Date.now()/1000 + this.buffer.length*AudioManager.sampleRate;
             this.createBuffer(buflen);
             this.fillBuffer(modman, buflen);
             
@@ -165,8 +175,8 @@ class AudioManager
 
     private getBuflen(): number
     {
-        const bl1 = Math.min(AudioManager.buflenMax, Math.max(AudioManager.buflenMin, (this.timing.smp - this.smpLastRefresh)*this.timing.dt));
-        const buflen = Math.min(bl1, this.buflenLast*(1 - AudioManager.buflenGrowth) + bl1*AudioManager.buflenGrowth);
+        const bl1 = Math.min(AudioManager.buflenMax, Math.max(1/1000 + AudioManager.buflenMin, (this.timing.smp - this.smpLastRefresh)*this.timing.dt));
+        const buflen = Math.min(bl1, this.bufsizeLast*AudioManager.sampleRate*(1 - AudioManager.buflenGrowth) + bl1*AudioManager.buflenGrowth);
         return buflen;
     }
     
