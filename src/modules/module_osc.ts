@@ -18,7 +18,7 @@ class ModuleOsc extends ModuleSource implements IModuleCVInSingle
         super(waveform.name + (waveform.name != "" ? " " : "") + "Oscillator");
 
         this.controlCenterFreq = this.addControl(new ControlFrequencyRange("Center", {min: rangeMinLog2(range), max: rangeMaxLog2(range)}, rangeCenterLog2(freq)));
-        this.controlOctaveRange = this.addControl(new ControlRange("Range", {min: 0, max: rangeOctaves(range)}, rangeOctaves(freq)));
+        this.controlOctaveRange = this.addControl(new ControlNumericInteger("Octaves", "Octaves", {min: 0, max: rangeOctaves(range)}, rangeOctaves(freq)));
         this.controlPhi = this.addControl(new ControlRange("Phi", {min: -360, max: 360}, (phi*180/Math.PI)));
         this.theta = 0;
         this.logValueOfSample("theta", this.theta);
