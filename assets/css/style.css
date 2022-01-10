@@ -198,7 +198,7 @@ h1 {
     fill: url(#my-cool-gradient) #447799;
 }
 
-input[type=range]
+input.controlInput
 {
     width: 100%;
 }
