@@ -3,6 +3,7 @@ Envelope generator
 Filter
 Ikon
 Add module knapp
+Add reset knapp
 
 Bugs med portlines
 Bug med audio
