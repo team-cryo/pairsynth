@@ -1,66 +1,90 @@
-class WAV {
+class WAV
+{
     public recording: number[][];
     private sampleRate: number;
-    private pos: number = 0;
+    private index: number = 0;
     private headerSize: number = 44;
+    private bitsPerSample: number = 16;
+    private length: number = 0;
+    private dataView: DataView;
 
-    constructor(recording: number[][], sampleRate: number) {
+    constructor(recording: number[][], sampleRate: number)
+    {
         this.recording = recording;
         this.sampleRate = sampleRate;
+        this.length = this.recording[0].length * this.recording.length * 2 + this.headerSize;
     }
 
-    public export(): string {
+    public export(): string
+    {
         return URL.createObjectURL(this.bufferToWAV());
     }
 
-    private setUint16(view: DataView, data: number) {
-        view.setUint16(this.pos, data, true);
-        this.pos += 2;
+    private writeString(dataView: DataView, str: string)
+    {
+        for (let i = 0; i < str.length; i++)
+        {
+            dataView.setUint8(this.index + i, str.charCodeAt(i));
+        }
+
+        this.index += str.length;
     }
 
-    private setUint32(view: DataView, data: number) {
-        view.setUint32(this.pos, data, true);
-        this.pos += 4;
+    private writeUint16(dataView: DataView, data: number)
+    {
+        dataView.setUint16(this.index, data, true);
+        this.index += 2;
     }
 
-    private writeHeader(view: DataView, length: number) {
-        this.setUint32(view, 0x46464952); // RIFF
-        this.setUint32(view, length - 8); // File size
-        this.setUint32(view, 0x45564157); // WAVE
-        this.setUint32(view, 0x20746d66); // "fmt"
-        this.setUint32(view, 16); // Subchunk size
-        this.setUint16(view, 1); // PCM = 1, no compression.
-        this.setUint16(view, this.recording.length); // Number of channels.
-        this.setUint32(view, this.sampleRate); // Sample rate.
-        this.setUint32(view, this.sampleRate * this.recording.length * 2); // bitsperSample / 8 = 2.
-        this.setUint16(view, this.recording.length * 2); // Numchannels * bitsperchannel / 8
-        this.setUint16(view, 16); // Bits per sample
-        this.setUint32(view, 0x61746164); // "data"
-        this.setUint32(view, length - this.pos - 4); // File size
+    private writeUint32(dataView: DataView, data: number)
+    {
+        dataView.setUint32(this.index, data, true);
+        this.index += 4;
     }
 
-    private bufferToWAV(): Blob  {
-        const length: number = this.recording[0].length * this.recording.length * 2 + this.headerSize;
-        const buffer: ArrayBuffer = new ArrayBuffer(length);
-        const view: DataView = new DataView(buffer);
-        let offset = 0;
-        let currentSample = 0;
+    private writeHeader(dataView: DataView, length: number)
+    {
+        this.writeString(dataView, "RIFF"); // RIFF
+        this.writeUint32(dataView, length - 8); // File size
+        this.writeString(dataView, "WAVE"); // WAVE
+        this.writeString(dataView, "fmt "); // "fmt"
+        this.writeUint32(dataView, 16); // Subchunk size
+        this.writeUint16(dataView, 1); // PCM = 1, no compression.
+        this.writeUint16(dataView, this.recording.length); // Number of channels.
+        this.writeUint32(dataView, this.sampleRate); // Sample rate.
+        this.writeUint32(dataView, this.sampleRate * this.recording.length * 2); // bitsperSample / 8 = 2.
+        this.writeUint16(dataView, this.recording.length * 2); // Numchannels * bitsperchannel / 8
+        this.writeUint16(dataView, this.bitsPerSample); // Bits per sample
+        this.writeString(dataView, "data"); // "data"
+        this.writeUint32(dataView, this.recording[0].length * this.recording.length * 2); // File size
+    }
 
-        this.writeHeader(view, length);
-    
-        while (this.pos < length)
+    private writeSamples(dataView: DataView, length: number)
+    {
+        let currentSample: number = 0;
+        let j: number = 0;
+
+        while (this.index < length)
         {
             for (let i = 0; i < this.recording.length; i++)
             {
-                currentSample = Util.clamp(this.recording[i][offset], -1, 1);
-                view.setInt16(this.pos, 
+                currentSample = Util.clamp(this.recording[i][j], -1, 1);
+                dataView.setInt16(this.index, 
                     currentSample < 0 ? currentSample * 0x8000 : currentSample * 0x7FFF, true);
-                this.pos += 2;
+                this.index += 2;
             }
 
-            offset++;
+            j++;
         }
+    }
+
+    private bufferToWAV(): Blob
+    {
+        this.dataView = new DataView(new ArrayBuffer(this.length));
+
+        this.writeHeader(this.dataView, this.length);
+        this.writeSamples(this.dataView, this.length);
     
-        return new Blob([buffer], {type: "audio/wav"});
+        return new Blob([this.dataView.buffer], {type: "audio/wav"});
     }
 }
