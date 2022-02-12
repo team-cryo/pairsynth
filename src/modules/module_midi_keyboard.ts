@@ -23,12 +23,12 @@ class ModuleMIDIKeyboard extends Module implements IModuleKeyboardMono
         return this.outputCV;
     }
 
-    private valueCV(): number
+    private valueCV(timing: timing): number
     {
         return 2*this.noteOct()/this.octaves;
     }
     
-    private valueGate() : number
+    private valueGate(timing: timing) : number
     {
         return this.gate() ? 1 : 0;
     }

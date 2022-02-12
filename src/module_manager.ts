@@ -10,21 +10,17 @@ class ModuleManager {
         this.output = this.addModule(this.addModule(new ModuleOutput()));
     }
 
-    public getOutput(ch: number): PortInput
+    public getOutputPort(ch: number): PortInput
     {
         return this.output.getInput(ch);
     }
 
-    public getAudioOutput(ch: number): number {
-        return this.output.getAudioOutput(ch);
+    public getAudioOutput(ch: number, timing: timing): number {
+        return this.output.getAudioOutput(ch, timing);
     }
 
     public addModule<Type extends Module>(module: Type): Type {
         this.modules[module.index] = module;
-        if(AudioManager.audiowoman)
-        {
-            AudioManager.audiowoman.refresh();
-        }
         return module;
     }
 
@@ -33,10 +29,6 @@ class ModuleManager {
         if(module != this.output && this.hasModule(module))
         {
             this.modules[module.index] = null;
-            if(AudioManager.audiowoman)
-            {
-                AudioManager.audiowoman.refresh();
-            }
             return true;
         }
         return false;
@@ -74,12 +66,5 @@ class ModuleManager {
             });
         });
         return cs;
-    }
-
-    public beginNewBufferLog(): void
-    {
-        this.allModules().forEach((module: Module) => {
-            module.beginNewBufferLog();
-        });
     }
 }

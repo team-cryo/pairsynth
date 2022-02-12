@@ -1,7 +1,5 @@
 class ControlValue<TypeValue, TypeHTMLElement extends JQuery<any> = JQuery<HTMLElement>> extends Control
 {
-    protected bufLastChange: number = -1;
-    private bufChange: number = 0;
     protected valueLastChange: TypeValue;
 
     constructor(label: string, placeholder: string = label, value: TypeValue, type: string, event: string = "change")
@@ -27,8 +25,6 @@ class ControlValue<TypeValue, TypeHTMLElement extends JQuery<any> = JQuery<HTMLE
             return true;
         }
         this.valueLastChange = oldValue;
-        this.bufLastChange = this.bufChange;
-        this.bufChange = AudioManager.audiowoman.timing.buf;
         if(!this.isValueLegal(value))
         {
             const cvalue: TypeValue = this.constrainValue(value);

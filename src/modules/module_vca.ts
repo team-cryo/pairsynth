@@ -8,9 +8,9 @@ class ModuleVCA extends ModuleGain implements IModuleCVInSingle
         this.inputCV = this.registerInput("CV");
     }
 
-    protected coefficient(): number
+    protected coefficient(timing: timing): number
     {
-        return super.coefficient()*this.getCV().getValue();
+        return super.coefficient(timing)*this.getCV().getValue(timing);
     }
     
     public getCV(): PortInput

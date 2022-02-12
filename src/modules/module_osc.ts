@@ -5,6 +5,7 @@ class ModuleOsc extends ModuleSource implements IModuleCVInSingle
     public static rangeLFO: range = {down: 10, max: 20}; //from 20Hz and 12 octaves down
 
     public theta: number;
+    private thetaLastChangedAtTime: number = 0;
 
     private waveform: Waveform;
     private inputCV: PortInput;
@@ -19,30 +20,30 @@ class ModuleOsc extends ModuleSource implements IModuleCVInSingle
 
         this.controlCenterFreq = this.addControl(new ControlFrequencyRange("Center", {min: rangeMinLog2(range), max: rangeMaxLog2(range)}, rangeCenterLog2(freq)));
         this.controlOctaveRange = this.addControl(new ControlNumericInteger("Octaves", "Octaves", {min: 0, max: rangeOctaves(range)}, rangeOctaves(freq)));
-        this.controlPhi = this.addControl(new ControlRange("Phi", {min: -360, max: 360}, (phi*180/Math.PI)));
+        this.controlPhi = this.addControl(new ControlRange("Phi", {min: -360, max: 360}, (phi*180/Math.PI), 0.001, 2));
         this.theta = 0;
-        this.logValueOfSample("theta", this.theta);
         this.waveform = waveform;
         this.inputCV = this.registerInput("CV");
     }
 
-    protected getPhi()
+    protected getPhi(): number
     {
         return this.controlPhi.getValue()*Math.PI/180 + 2*Math.PI
     }
 
-    protected wave(dt: number): number
+    protected wave(timing: timing): number
     {
-        const freq = this.getFreq();
-        this.theta = (this.retriveValueOfLastSample("theta") + 2*Math.PI*dt*freq)%(2*Math.PI);
-        this.logValueOfSample("theta", this.theta);
+        const dt = timing.dt(this.thetaLastChangedAtTime);
+        const freq = this.getFreq(timing);
+        this.theta = (this.theta + 2*Math.PI*dt*freq)%(2*Math.PI);
+        this.thetaLastChangedAtTime = timing.time;
         const w = this.waveform.getWave(this.getPhi() + this.theta);
         return w;
     }
 
-    public getFreq(): number
+    public getFreq(timing: timing): number
     {
-        const x: number = this.inputCV.getValue();
+        const x: number = this.inputCV.getValue(timing);
         const cf: number = this.controlCenterFreq.getValue();
         return 2**(cf + this.controlOctaveRange.getValue()*x);
     }

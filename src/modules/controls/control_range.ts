@@ -9,17 +9,4 @@ class ControlRange extends ControlNumeric
         super(label, "", range, value, decimals, type, event);
         this.setAttribute("step", step);
     }
-
-    public getValue(): number
-    {
-        const val = super.getValue();
-        const timing: timing = AudioManager.audiowoman.timing;
-        if(timing.buf === this.bufLastChange + 1)
-        {
-            const f1 = timing.cycle;
-            const f2 = 1 - f1;
-            return val*f1 + this.valueLastChange*f2;
-        }
-        return val;
-    }
 }

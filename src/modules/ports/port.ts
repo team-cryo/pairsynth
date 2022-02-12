@@ -15,7 +15,7 @@ class Port
         return this.pid;
     }
 
-    public getValue()
+    public getValue(timing: timing)
     {
         throw "getValue must be extended";
     }

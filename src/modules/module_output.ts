@@ -25,21 +25,21 @@ class ModuleOutput extends Module
         return null;
     }
 
-    private getAudioOutputMono()
+    private getAudioOutputMono(timing: timing)
     {
-        return (this.speakerR.getValue() + this.speakerL.getValue())/2*this.masterVolume.getValue();
+        return (this.speakerR.getValue(timing) + this.speakerL.getValue(timing))/2*this.masterVolume.getValue();
     }
 
-    private getAudioOutputCh(ch: number)
+    private getAudioOutputCh(ch: number, timing: timing)
     {
-        const i: PortInput = this.getInput(ch);
-        return i != null ? i.getValue()*this.masterVolume.getValue() : 0;
+        const inp: PortInput = this.getInput(ch);
+        return inp != null ? inp.getValue(timing)*this.masterVolume.getValue() : 0;
     }
 
-    public getAudioOutput(ch: number): number
+    public getAudioOutput(ch: number, timing: timing): number
     {
         const f1: number = this.stereoSeparation.getValue();
         const f2: number = 1 - f1;
-        return this.getAudioOutputCh(ch)*f1 + this.getAudioOutputMono()*f2;
+        return this.getAudioOutputCh(ch, timing)*f1 + this.getAudioOutputMono(timing)*f2;
     }
 }

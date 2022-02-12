@@ -3,19 +3,19 @@ class PortOutput extends Port
     private static map: PortOutput[] = [];
     private static pid: number = 0;
 
-    private func: () => number;
+    private func: (timing: timing) => number;
 
-    constructor(label: string, func: () => number) {
+    constructor(label: string, func: (timing: timing) => number) {
         super(PortOutput.pid++, label);
         PortOutput.map[this.getPid()] = this;
         this.setFunction(func);
     }
 
-    public getValue(): number {
-        return Math.max(Math.min(this.func.call(this), 1), -1);
+    public getValue(timing: timing): number {
+        return Math.max(Math.min(this.func.call(this, timing), 1), -1);
     }
     
-    public setFunction(func: () => number) {
+    public setFunction(func: (timing: timing) => number) {
         this.func = func;
     }
     

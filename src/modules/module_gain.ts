@@ -8,13 +8,13 @@ class ModuleGain extends ModuleTransfer
         this.controlGain = this.addControl(new ControlRange("Gain", {min: 0, max: 1}, gain));
     }
 
-    protected coefficient(): number
+    protected coefficient(timing: timing): number
     {
         return this.controlGain.getValue();
     }
 
-    protected transferFunction(value: number): number
+    protected transferFunction(value: number, timing: timing): number
     {
-        return value*this.coefficient();
+        return value*this.coefficient(timing);
     }
 }

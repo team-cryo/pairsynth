@@ -2,124 +2,83 @@ class AudioManager
 {
     public static audiowoman: AudioManager; // Inclusive audio manager.
 
-    private static scaleVolume: number = 0.8;
+    private static scaleVolume: number = 1;
     private static sampleRate: number = 44100;
-    private static buflenMin: number = 100/AudioManager.sampleRate;
-    private static buflenMax: number = 10;
-    private static buflenGrowth: number = 0.1;
+    private static bufsize: number = 32*4;
+    private static bufferStackSize: number = 4;
 
-    public timing: timing = {dt: 0, cycle: 0, time: 0, buf: -1, smp: -1};
+    //public timing: timing = {dt: 0, cycle: 0, time: 0, buf: -1, smp: -1};
 
     private audioContext: AudioContext;
     private filter: BiquadFilterNode;
     private source: AudioBufferSourceNode;
-    private buffer: AudioBuffer;
-    private hasPlayed: boolean = false;
+    private bufferStack: AudioBuffer[];
+    private bufferStackCount: number = 0;
+
     private playing: boolean = false;
-    private bufcount: number = 0;
-    private buf: number = 0;
-    private lastSmpOffset: number = 0;
-    private smpOffset: number = 0
-    private bufsizeLast: number = 0;
-    private smpLastRefresh: number = 0;
+    private smpOffset: number = 0;
+
+    private isRecording: boolean = true;
+    private smpRecOffset: number = 0;
     private recording: number[][] = [[0], [0]];
-    private lastBufferEndTime: number;
+    //private lastBufferEndTime: number;
 
     constructor()
     {
+        this.bufferStack = [];
         AudioManager.audiowoman = this;
     }
 
     private createFilter(): void {
         this.filter = this.audioContext.createBiquadFilter();
         this.filter.type = "lowshelf";
-        this.filter.frequency.value = AudioManager.sampleRate/4;
+        this.filter.frequency.value = this.getSampleRate()/2;
         this.filter.connect(this.audioContext.destination);
     }
 
-    public getSampleLenMax()
+    private createAudioContext(sampleRate: number): void
     {
-        return Math.round(AudioManager.buflenMax/AudioManager.sampleRate);
-    }
-
-    private createAudioContext(): void
-    {
-        this.audioContext = new AudioContext({sampleRate: AudioManager.sampleRate});
+        this.audioContext = new AudioContext({sampleRate: this.getSampleRate()});
         this.createFilter();
     }
 
-    private createBuffer(buflen: number): void
+    private createEmptyBuffer(bufsize: number, sampleRate: number): AudioBuffer
     {
-        this.buffer = this.audioContext.createBuffer(2, this.audioContext.sampleRate*buflen, this.audioContext.sampleRate);
+        if(this.audioContext == null)
+        {
+            this.createAudioContext(sampleRate);
+        }
+        return this.audioContext.createBuffer(2, bufsize, sampleRate);
     }
 
-    private fillBuffer(modman: ModuleManager, buflen: number): void
+    private next()
     {
-        const bufsizeactual = Math.round(this.audioContext.sampleRate*buflen);
-
-        for(let channel = 0, chn = this.buffer.numberOfChannels; channel < chn; channel++)
+        if(this.playing || this.bufferStackCount > 0)
         {
-            const currentBuffer = this.buffer.getChannelData(channel);
-
-            this.timing = {
-                dt: 1/this.audioContext.sampleRate,
-                cycle: 0,
-                buf: this.buf,
-                smp: this.smpOffset,
-                time: this.smpOffset*this.timing.dt
-            }
-
-            modman.beginNewBufferLog();
-
-            for(let i = 0; i < bufsizeactual; i++)
+            if(this.playing && this.bufferStackCount == 0)
             {
-                this.timing.cycle = i/bufsizeactual;
-                this.timing.smp = this.smpOffset + i;
-                this.timing.time = this.timing.smp*this.timing.dt;
-                currentBuffer[i] = modman.getAudioOutput(channel)*AudioManager.scaleVolume;
-                this.recording[channel][this.timing.smp] = currentBuffer[i];
+                this.bufferStack[0] = this.createEmptyBuffer(AudioManager.bufsize, this.getSampleRate());
             }
+            this.playBuffer(this.bufferStack[0], (event: Event) => {
+                this.bufferStackCount--;
+                this.next()
+            });
+            this.shiftBuffers(modman, this.getSampleRate(), this.playing);
         }
-
-        this.bufsizeLast = bufsizeactual;
-        this.lastSmpOffset = bufsizeactual;
-        this.buf++;
-        this.smpOffset += bufsizeactual;
     }
 
     public play(): void
     {
-        const modman = ModuleManager.modman;
-        if(!this.playing || !this.hasPlayed)
+        this.playing = true;
+        if(this.bufferStackCount == 0)
         {
-            this.playBuffer(modman);
-        }
-    }
-
-    public refresh(): void
-    {
-        if(this.playing && this.bufcount <= 1)
-        {
-            this.bufcount--
-            const timeTurnback = this.lastBufferEndTime - Date.now()/1000;
-            this.smpLastRefresh = this.timing.smp;
-            if(timeTurnback > AudioManager.buflenMin*2)
-            {
-                const smpTurnback = Math.round(timeTurnback*AudioManager.sampleRate);
-                if(smpTurnback > this.bufsizeLast - AudioManager.buflenMin/AudioManager.sampleRate)
-                {
-                    return;
-                }
-                this.smpLastRefresh -= smpTurnback;
-            }
-            this.stopBuffer();
+            this.next();
         }
     }
 
     public pause(): void
     {
         this.playing = false;
-        this.stopBuffer();
     }
 
     public reset(): void
@@ -127,63 +86,99 @@ class AudioManager
         this.smpOffset = 0;
     }
 
-    private stopBuffer(): void
+    private playBuffer(buffer: AudioBuffer, callback: (event: Event) => void): void
     {
-        if(this.bufcount > 0)
+        const sampleRate = this.getSampleRate();
+
+        if(this.audioContext == null)
         {
-            const timeTurnback = this.lastBufferEndTime - Date.now()/1000;
-            if(timeTurnback > AudioManager.buflenMin)
+            this.createAudioContext(sampleRate);
+        }
+        
+        this.source = this.audioContext.createBufferSource();
+        this.source.buffer = buffer;
+        this.source.connect(this.filter);
+        
+        this.source.onended = callback;
+        
+        this.source.start();
+    }
+    
+    private shiftBuffers(modman: ModuleManager, sampleRate: number, fillMore: boolean): void
+    {
+        const bufsize = AudioManager.bufsize;
+        const bufferStackSize = AudioManager.bufferStackSize;
+        const bufferStackShift = bufferStackSize - this.bufferStackCount;
+        for(let i = 0; i < bufferStackSize; i++)
+        {
+            const ishifted = i + bufferStackShift;
+            if(ishifted < bufferStackSize)
             {
-                this.source.stop();
-                const smpTurnback = Math.round(timeTurnback*AudioManager.sampleRate);
-                this.buf--;
-                this.smpOffset = Math.max(this.lastSmpOffset + 1, this.smpOffset - smpTurnback);
+                this.bufferStack[i] = this.bufferStack[ishifted];
+            }
+            else
+            {
+                this.bufferStack[i] = this.createEmptyBuffer(bufsize, sampleRate);
+                if(fillMore)
+                {
+                    this.fillBuffer(this.bufferStack[i], modman, bufsize);
+                }
+                this.bufferStackCount++;
             }
         }
     }
-    
-    private playBuffer(modman: ModuleManager): void
-    {
-        const buflen = this.getBuflen();
-        if(this.bufcount <= 0)
-        {
-            this.hasPlayed = true;
-            this.createAudioContext();
-            this.createBuffer(buflen);
-            this.fillBuffer(modman, buflen);
 
-            this.source = this.audioContext.createBufferSource();
-            this.source.buffer = this.buffer;
-            this.source.connect(this.filter);
-            this.bufcount++;
-            this.source.start();
-            this.lastBufferEndTime = Date.now()/1000 + this.buffer.length*AudioManager.sampleRate;
-            this.createBuffer(buflen);
-            this.fillBuffer(modman, buflen);
-            
-            this.source.onended = (event: Event) => {
-                this.bufcount--
-                if(this.playing)
-                {
-                    this.playBuffer(modman);
-                }
-            };
+    private fillBuffer(buffer: AudioBuffer, modman: ModuleManager, bufsize: number): void
+    {
+        const smpStart: number = this.smpOffset;
+        const smpRecStart: number = this.smpRecOffset;
+        const channelCount: number = buffer.numberOfChannels;
+
+        this.smpRecOffset = smpRecStart + bufsize;
+        this.smpOffset = smpStart + bufsize;
+
+        const channelData: Float32Array[] = [];
+        for(let i = 0; i < channelCount; i++)
+        {
+            channelData[i] = buffer.getChannelData(i);
         }
 
-        this.playing = true;
+        for(let i = 0; i < bufsize; i++)
+        {
+            const smp = smpStart + i;
+            
+            const time: number = smp/this.audioContext.sampleRate;
+                
+            const timing: timing = {
+                cycle: i/bufsize,
+                time: time,
+                tick: smp,
+                dt: (lastTime: number) => time - lastTime
+            }
+
+            for(let channel = 0, chn = buffer.numberOfChannels; channel < chn; channel++)
+            {
+                const value = modman.getAudioOutput(channel, timing)*AudioManager.scaleVolume;
+                channelData[channel][i] = value;
+
+                if(this.isRecording)
+                {
+                    const smpRec: number = smpRecStart + i;
+                    this.recording[channel][smpRec] = value;
+                }
+            }
+        }
     }
 
-    private getBuflen(): number
+    private getSampleRate()
     {
-        const bl1 = Math.min(AudioManager.buflenMax, Math.max(1/1000 + AudioManager.buflenMin, (this.timing.smp - this.smpLastRefresh)*this.timing.dt));
-        const buflen = Math.min(bl1, this.bufsizeLast*AudioManager.sampleRate*(1 - AudioManager.buflenGrowth) + bl1*AudioManager.buflenGrowth);
-        return buflen;
+        return AudioManager.sampleRate;
     }
     
     public export(): string {
-        const wav = new WAV(this.recording, AudioManager.sampleRate);
+        const wav = new WAV(this.recording, this.getSampleRate());
         return wav.export(); // A download link for the buffer.
     }
 }
 
-type timing = {dt: number, cycle: number, time: number, buf: number, smp: number};
+type timing = {dt: ((lastTime: number) => number), cycle: number, time: number, tick: number};

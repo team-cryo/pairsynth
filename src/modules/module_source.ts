@@ -7,15 +7,15 @@ class ModuleSource extends Module implements IModuleOutputSingle
     constructor(name: string, amplitude: number = 1) {
         super(name);
         this.amplitude = this.addControl(new ControlRange("Amplitude", {min: 0, max: 1}, amplitude));
-        this.output = this.registerOutput("Out", () => {return this.signal.apply(this)});
+        this.output = this.registerOutput("Out", this.signal);
     }
 
-    private signal(): number
+    private signal(timing: timing): number
     {
-        return this.wave(AudioManager.audiowoman.timing.dt)*this.amplitude.getValue();
+        return this.wave(timing)*this.amplitude.getValue();
     }
 
-    protected wave(dt: number): number
+    protected wave(timing: timing): number
     {
         throw "wave must be extended";
     }

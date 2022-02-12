@@ -2,6 +2,7 @@ class ModuleCustom extends Module {
     private out: PortOutput;
     private controlTextbox: ControlTextbox;
     private status: ControlStatus;
+    private lastTime: number = 0;
 
     constructor() {
         super("Custom");
@@ -11,14 +12,14 @@ class ModuleCustom extends Module {
         this.status = this.addControl(new ControlStatus("Status"));
     }
 
-    private func()
+    private func(timing: timing)
     {
         const js: string = this.controlTextbox.getValue();
-        const timing: timing = AudioManager.audiowoman.timing;
 
         //som easily avaliable variables for custom module js
-        const time: number = audiowoman.timing.time;
-        const dt: number = audiowoman.timing.dt;
+        const time: number = timing.time;
+        const dt: number = timing.dt(this.lastTime);
+        this.lastTime = time;
 
         try {
             return eval(js);
