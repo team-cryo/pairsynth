@@ -26,6 +26,8 @@ vca.getInput().setConnection(oscillator.getOutput());*/
 //oscillator.getCV().setConnection(lfo1.getOutput());
 modman.getOutputPort(0).setConnection(oscillator.getOutput());
 
+new Oscilloscope("oscilloscope", "sine").toChart();
+
 //modman.getOutput(0).setConnection(custom.getRegisteredOutputs()[0]);
 
 const audiowoman: AudioManager = new AudioManager();

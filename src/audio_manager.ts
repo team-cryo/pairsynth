@@ -4,7 +4,7 @@ class AudioManager
 
     private static scaleVolume: number = 1;
     private static sampleRate: number = 44100;
-    private static bufsize: number = 32*4;
+    private static bufsize: number = 32;
     private static bufferStackSize: number = 4;
 
     //public timing: timing = {dt: 0, cycle: 0, time: 0, buf: -1, smp: -1};
